@@ -110,13 +110,14 @@ converser/
 │           ├── reports.module.ts
 │           └── dto/
 ├── frontend/
-│   ├── app/
-│   ├── components/
-│   │   ├── ui/
-│   │   └── layout/
-│   ├── store/
-│   ├── lib/
-│   └── hooks/
+│   └── src/
+│       ├── app/
+│       ├── components/
+│       │   ├── ui/
+│       │   └── layout/
+│       ├── store/
+│       ├── lib/
+│       └── hooks/
 ├── infra/
 │   ├── modules/
 │   │   ├── network/
