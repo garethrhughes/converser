@@ -19,10 +19,10 @@ interface GoogleDrivePickerProps {
 }
 
 export function GoogleDrivePicker({ onSelect, onCancel }: GoogleDrivePickerProps) {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const gapiLoadedRef = useRef(false);
   const pickerApiLoadedRef = useRef(false);
+  const openedRef = useRef(false);
 
   const loadGapiScript = useCallback(() => {
     return new Promise<void>((resolve, reject) => {
@@ -65,68 +65,58 @@ export function GoogleDrivePicker({ onSelect, onCancel }: GoogleDrivePickerProps
     });
   }, []);
 
+  // Auto-open picker on mount
   useEffect(() => {
-    loadGapiScript().catch(() => {
-      setError('Failed to load Google API script');
-    });
-  }, [loadGapiScript]);
+    if (openedRef.current) return;
+    openedRef.current = true;
 
-  async function openPicker() {
-    setLoading(true);
-    setError(null);
+    async function open() {
+      try {
+        await loadGapiScript();
+        await loadPickerApi();
 
-    try {
-      await loadGapiScript();
-      await loadPickerApi();
+        const { token } = await api.get<{ token: string }>('/auth/google-token');
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
-      const { token } = await api.get<{ token: string }>('/auth/google-token');
-      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+        if (!clientId) {
+          throw new Error('Google Client ID is not configured');
+        }
 
-      if (!clientId) {
-        throw new Error('Google Client ID is not configured');
+        const docsView = new window.google.picker.DocsView(
+          window.google.picker.ViewId.DOCUMENTS
+        )
+          .setMimeTypes('application/vnd.google-apps.document,text/plain')
+          .setMode(window.google.picker.DocsViewMode.LIST);
+
+        const picker = new window.google.picker.PickerBuilder()
+          .setOAuthToken(token)
+          .setDeveloperKey('')
+          .setAppId(clientId)
+          .addView(docsView)
+          .setCallback((data: { action: string; docs?: Array<{ id: string }> }) => {
+            if (data.action === window.google.picker.Action.PICKED && data.docs?.[0]) {
+              onSelect(data.docs[0].id);
+            } else if (data.action === window.google.picker.Action.CANCEL) {
+              onCancel?.();
+            }
+          })
+          .build();
+
+        picker.setVisible(true);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to open picker');
+        onCancel?.();
       }
-
-      const docsView = new window.google.picker.DocsView(
-        window.google.picker.ViewId.DOCUMENTS
-      )
-        .setMimeTypes('application/vnd.google-apps.document,text/plain')
-        .setMode(window.google.picker.DocsViewMode.LIST);
-
-      const picker = new window.google.picker.PickerBuilder()
-        .setOAuthToken(token)
-        .setDeveloperKey('') // Not required when using OAuth token
-        .setAppId(clientId)
-        .addView(docsView)
-        .setCallback((data: { action: string; docs?: Array<{ id: string }> }) => {
-          if (data.action === window.google.picker.Action.PICKED && data.docs?.[0]) {
-            onSelect(data.docs[0].id);
-          } else if (data.action === window.google.picker.Action.CANCEL) {
-            onCancel?.();
-          }
-        })
-        .build();
-
-      picker.setVisible(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to open picker');
-    } finally {
-      setLoading(false);
     }
+
+    open();
+  }, [loadGapiScript, loadPickerApi, onSelect, onCancel]);
+
+  if (error) {
+    return (
+      <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+    );
   }
 
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={openPicker}
-        disabled={loading}
-        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        {loading ? 'Opening...' : 'Select from Google Drive'}
-      </button>
-      {error && (
-        <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
-      )}
-    </div>
-  );
+  return null;
 }

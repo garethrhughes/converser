@@ -22,20 +22,32 @@ export async function getValidGoogleAccessToken(
   const oauth2Client = new google.auth.OAuth2(
     configService.getOrThrow<string>('GOOGLE_CLIENT_ID'),
     configService.getOrThrow<string>('GOOGLE_CLIENT_SECRET'),
+    configService.getOrThrow<string>('GOOGLE_CALLBACK_URL'),
   );
 
   oauth2Client.setCredentials({ refresh_token: refreshToken });
 
-  const { credentials } = await oauth2Client.refreshAccessToken();
+  try {
+    const { credentials } = await oauth2Client.refreshAccessToken();
 
-  if (!credentials.access_token) {
-    throw new Error('Failed to refresh Google access token');
+    if (!credentials.access_token) {
+      throw new Error('Failed to refresh Google access token');
+    }
+
+    const encryptedAccessToken = encrypt(
+      credentials.access_token,
+      encryptionKey,
+    );
+    await userRepository.update(user.id, {
+      googleAccessTokenEnc: encryptedAccessToken,
+    });
+
+    return credentials.access_token;
+  } catch (error) {
+    // If refresh fails, try using the stored access token directly
+    if (user.googleAccessTokenEnc) {
+      return decrypt(user.googleAccessTokenEnc, encryptionKey);
+    }
+    throw error;
   }
-
-  const encryptedAccessToken = encrypt(credentials.access_token, encryptionKey);
-  await userRepository.update(user.id, {
-    googleAccessTokenEnc: encryptedAccessToken,
-  });
-
-  return credentials.access_token;
 }

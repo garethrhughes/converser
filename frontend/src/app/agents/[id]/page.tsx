@@ -62,7 +62,7 @@ export default function EditAgentPage() {
   }
 
   return (
-    <div className="px-10 py-10">
+    <div className="px-10 py-10 overflow-hidden">
       <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-8">
         Edit Agent
       </h1>

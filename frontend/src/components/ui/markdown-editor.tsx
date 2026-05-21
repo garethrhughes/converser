@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { EditorView, placeholder as editorPlaceholder } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
 import { markdown } from '@codemirror/lang-markdown';
@@ -13,11 +13,28 @@ interface MarkdownEditorProps {
 }
 
 export function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
+  const [height, setHeight] = useState(400);
 
   onChangeRef.current = onChange;
+
+  // Calculate available height
+  useEffect(() => {
+    function calcHeight() {
+      if (!wrapperRef.current) return;
+      const rect = wrapperRef.current.getBoundingClientRect();
+      // Leave 80px for the buttons below
+      const available = window.innerHeight - rect.top - 80;
+      setHeight(Math.max(200, available));
+    }
+
+    calcHeight();
+    window.addEventListener('resize', calcHeight);
+    return () => window.removeEventListener('resize', calcHeight);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -31,10 +48,9 @@ export function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorP
         }
       }),
       EditorView.theme({
-        '&': { minHeight: '500px', height: '500px', width: '100%' },
-        '.cm-scroller': { minHeight: '500px', overflow: 'auto' },
+        '&': { height: `${height}px`, width: '100%' },
+        '.cm-scroller': { overflow: 'auto' },
         '.cm-content': { fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace' },
-        '.cm-gutters': { minHeight: '500px' },
       }),
     ];
 
@@ -59,7 +75,7 @@ export function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorP
       viewRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [height]);
 
   useEffect(() => {
     const view = viewRef.current;
@@ -78,9 +94,12 @@ export function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorP
   }, [value]);
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full min-h-[500px] border border-zinc-300 rounded-lg overflow-hidden dark:border-zinc-700"
-    />
+    <div ref={wrapperRef} className="w-full overflow-hidden">
+      <div
+        ref={containerRef}
+        style={{ height: `${height}px` }}
+        className="w-full max-w-full border border-zinc-300 rounded-lg overflow-hidden dark:border-zinc-700"
+      />
+    </div>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { getAccessToken, refreshAccessToken, isAuthenticated } from '@/lib/auth';
 
-const PUBLIC_PATHS = ['/login', '/auth/callback'];
+const PUBLIC_PATHS = ['/login', '/auth/callback', '/logout'];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

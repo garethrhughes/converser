@@ -24,10 +24,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         'email',
         'profile',
         'https://www.googleapis.com/auth/drive.readonly',
+        'https://www.googleapis.com/auth/documents.readonly',
       ],
-      accessType: 'offline',
-      prompt: 'consent',
     } as unknown as ConstructorParameters<typeof Strategy>[0]);
+  }
+
+  authorizationParams(): Record<string, string> {
+    return {
+      access_type: 'offline',
+      prompt: 'consent',
+    };
   }
 
   validate(

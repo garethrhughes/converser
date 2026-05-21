@@ -31,7 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex">
         <Sidebar />
-        <main className="flex-1 ml-60 min-h-screen">
+        <main className="flex-1 ml-60 min-h-screen overflow-x-hidden">
           <AuthProvider>{children}</AuthProvider>
         </main>
       </body>

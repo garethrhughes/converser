@@ -11,7 +11,6 @@ export default function ConversationsPage() {
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showImportModal, setShowImportModal] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState<string>('');
   const [importing, setImporting] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
@@ -31,6 +30,7 @@ export default function ConversationsPage() {
 
   useEffect(() => {
     fetchConversations();
+    fetchPeople();
   }, [fetchConversations]);
 
   async function fetchPeople() {
@@ -38,18 +38,8 @@ export default function ConversationsPage() {
       const data = await api.get<Person[]>('/people');
       setPeople(data);
     } catch {
-      // Non-critical — people dropdown will be empty
+      // Non-critical
     }
-  }
-
-  function handleImportClick() {
-    setShowImportModal(true);
-    fetchPeople();
-  }
-
-  function handleContinueToPickerClick() {
-    setShowImportModal(false);
-    setShowPicker(true);
   }
 
   async function handleDocumentSelect(documentId: string) {
@@ -68,18 +58,7 @@ export default function ConversationsPage() {
       setError(err instanceof Error ? err.message : 'Failed to import conversation');
     } finally {
       setImporting(false);
-      setSelectedPersonId('');
     }
-  }
-
-  function handlePickerCancel() {
-    setShowPicker(false);
-    setSelectedPersonId('');
-  }
-
-  function handleModalCancel() {
-    setShowImportModal(false);
-    setSelectedPersonId('');
   }
 
   async function handleDelete(id: string) {
@@ -102,16 +81,9 @@ export default function ConversationsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10">
+    <div className="px-10 py-10">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Conversations</h1>
-        <button
-          onClick={handleImportClick}
-          disabled={importing}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {importing ? 'Importing...' : 'Import from Google Drive'}
-        </button>
       </div>
 
       {error && (
@@ -120,62 +92,50 @@ export default function ConversationsPage() {
         </div>
       )}
 
-      {importing && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">
-          Importing conversation from Google Drive...
-        </div>
-      )}
-
-      {/* Import Modal — Person selection */}
-      {showImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl p-6 w-full max-w-md border border-zinc-200 dark:border-zinc-700">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-              Import Conversation
-            </h2>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
-              Optionally link this conversation to a person:
-            </p>
+      {/* Import section */}
+      <div className="mb-8 p-5 border border-zinc-200 rounded-lg bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700">
+        <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">Import from Google Drive</h2>
+        <div className="flex items-end gap-4">
+          <div className="flex-1 max-w-xs">
+            <label htmlFor="person-select" className="block text-xs text-zinc-500 dark:text-zinc-400 mb-1">
+              Link to person (optional)
+            </label>
             <select
+              id="person-select"
               value={selectedPersonId}
               onChange={(e) => setSelectedPersonId(e.target.value)}
-              className="w-full px-3 py-2 border border-zinc-300 rounded-md text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100 mb-6"
+              className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
             >
-              <option value="">No person (unlinked)</option>
+              <option value="">No person</option>
               {people.map((person) => (
                 <option key={person.id} value={person.id}>
                   {person.name}
                 </option>
               ))}
             </select>
-            <div className="flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={handleModalCancel}
-                className="px-4 py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleContinueToPickerClick}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Continue
-              </button>
-            </div>
           </div>
+          <button
+            onClick={() => setShowPicker(true)}
+            disabled={importing}
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {importing ? 'Importing...' : 'Import'}
+          </button>
+        </div>
+      </div>
+
+      {importing && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">
+          Importing conversation from Google Drive...
         </div>
       )}
 
       {/* Google Drive Picker */}
       {showPicker && (
-        <div className="mb-6">
-          <GoogleDrivePicker
-            onSelect={handleDocumentSelect}
-            onCancel={handlePickerCancel}
-          />
-        </div>
+        <GoogleDrivePicker
+          onSelect={handleDocumentSelect}
+          onCancel={() => setShowPicker(false)}
+        />
       )}
 
       {conversations.length === 0 ? (
