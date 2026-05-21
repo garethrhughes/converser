@@ -1,4 +1,16 @@
-.PHONY: up down dev-api dev-web test-api test-web lint-api lint-web build-api build-web migrate plan apply
+.PHONY: start stop up down dev-api dev-web test-api test-web lint-api lint-web build-api build-web migrate plan apply
+
+# Start everything (docker + backend + frontend)
+start:
+	docker compose up -d
+	cd backend && npm run start:dev &
+	cd frontend && npm run dev &
+
+# Stop everything
+stop:
+	-pkill -f "nest start" 2>/dev/null || true
+	-pkill -f "next dev" 2>/dev/null || true
+	docker compose down
 
 # Local dependencies
 up:
