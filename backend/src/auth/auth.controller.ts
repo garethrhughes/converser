@@ -137,6 +137,18 @@ export class AuthController {
     res.json({ message: 'Logged out' });
   }
 
+  @Get('google-token')
+  @ApiOperation({
+    summary: 'Get a valid Google access token for the current user',
+  })
+  async getGoogleToken(
+    @Req() req: AuthenticatedRequest,
+  ): Promise<{ token: string }> {
+    const user = req.user as { sub: string };
+    const token = await this.authService.getGoogleAccessToken(user.sub);
+    return { token };
+  }
+
   private setRefreshTokenCookie(res: Response, refreshToken: string): void {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,

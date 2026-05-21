@@ -1,0 +1,47 @@
+export interface Person {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationSection {
+  id: string;
+  title: string;
+  content: string;
+  order: number;
+}
+
+export interface Conversation {
+  id: string;
+  title: string;
+  sourceType: string;
+  sourceId?: string;
+  sourceUrl?: string;
+  importedAt: string;
+  person?: Person;
+  sections?: ConversationSection[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Agent {
+  id: string;
+  name: string;
+  description?: string;
+  instructions: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Context {
+  id: string;
+  name: string;
+  description?: string;
+  content: string;
+  sourceType: string;
+  createdAt: string;
+  updatedAt: string;
+}

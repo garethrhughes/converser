@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { User } from '../database/entities/user.entity';
 import { encrypt } from '../common/crypto.util';
+import { getValidGoogleAccessToken } from '../common/google-token.helper';
 import { GoogleProfile } from './strategies/google.strategy';
 import { AgentsService } from '../agents/agents.service';
 
@@ -182,6 +183,20 @@ export class AuthService implements OnModuleInit {
       hashedRefreshToken: undefined,
     });
     this.logger.log({ msg: 'User logged out', userId });
+  }
+
+  async getGoogleAccessToken(userId: string): Promise<string> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return getValidGoogleAccessToken(
+      user,
+      this.configService,
+      this.userRepository,
+    );
   }
 
   private generateAuthCode(userId: string): string {

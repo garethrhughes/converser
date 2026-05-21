@@ -10,6 +10,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { AgentsModule } from './agents/agents.module';
 import { ContextsModule } from './contexts/contexts.module';
+import { PeopleModule } from './people/people.module';
+import { ConversationsModule } from './conversations/conversations.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
@@ -58,6 +60,8 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     AuthModule,
     AgentsModule,
     ContextsModule,
+    PeopleModule,
+    ConversationsModule,
   ],
   controllers: [AppController],
   providers: [
