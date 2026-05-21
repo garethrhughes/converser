@@ -3,6 +3,8 @@ import {
   UnauthorizedException,
   Logger,
   OnModuleInit,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -13,6 +15,7 @@ import { randomBytes } from 'crypto';
 import { User } from '../database/entities/user.entity';
 import { encrypt } from '../common/crypto.util';
 import { GoogleProfile } from './strategies/google.strategy';
+import { AgentsService } from '../agents/agents.service';
 
 export interface TokenPair {
   accessToken: string;
@@ -46,6 +49,8 @@ export class AuthService implements OnModuleInit {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => AgentsService))
+    private readonly agentsService: AgentsService,
   ) {
     this.encryptionKey = this.configService.getOrThrow<string>(
       'GOOGLE_TOKEN_ENCRYPTION_KEY',
@@ -112,6 +117,9 @@ export class AuthService implements OnModuleInit {
         userId: user.id,
         email: user.email,
       });
+
+      // Seed default agents for the new user
+      await this.agentsService.seedDefaultAgents(user.id);
     }
 
     // Generate a short-lived auth code instead of returning tokens directly

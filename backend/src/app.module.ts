@@ -8,6 +8,8 @@ import { IncomingMessage } from 'http';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { AgentsModule } from './agents/agents.module';
+import { ContextsModule } from './contexts/contexts.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
@@ -54,6 +56,8 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
       }),
     }),
     AuthModule,
+    AgentsModule,
+    ContextsModule,
   ],
   controllers: [AppController],
   providers: [

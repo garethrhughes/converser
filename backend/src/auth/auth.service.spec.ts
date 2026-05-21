@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { User } from '../database/entities/user.entity';
 import { GoogleProfile } from './strategies/google.strategy';
+import { AgentsService } from '../agents/agents.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -17,6 +18,7 @@ describe('AuthService', () => {
     update: jest.Mock;
   };
   let jwtService: { sign: jest.Mock; verify: jest.Mock };
+  let agentsService: { seedDefaultAgents: jest.Mock };
 
   const mockEncryptionKey = 'a'.repeat(64); // 32 bytes in hex
 
@@ -33,6 +35,10 @@ describe('AuthService', () => {
       verify: jest.fn(),
     };
 
+    agentsService = {
+      seedDefaultAgents: jest.fn().mockResolvedValue(undefined),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -43,6 +49,10 @@ describe('AuthService', () => {
         {
           provide: JwtService,
           useValue: jwtService,
+        },
+        {
+          provide: AgentsService,
+          useValue: agentsService,
         },
         {
           provide: ConfigService,
@@ -100,6 +110,9 @@ describe('AuthService', () => {
         where: { googleId: 'google-123' },
       });
       expect(userRepository.create).toHaveBeenCalled();
+      expect(agentsService.seedDefaultAgents).toHaveBeenCalledWith(
+        'user-uuid-1',
+      );
       expect(authCode).toBeDefined();
       expect(typeof authCode).toBe('string');
       expect(authCode.length).toBe(64); // 32 bytes hex
@@ -335,6 +348,10 @@ describe('AuthService', () => {
           {
             provide: JwtService,
             useValue: jwtService,
+          },
+          {
+            provide: AgentsService,
+            useValue: agentsService,
           },
           {
             provide: ConfigService,
