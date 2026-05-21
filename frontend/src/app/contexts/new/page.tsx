@@ -28,7 +28,7 @@ export default function NewContextPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-10">
+    <div className="px-10 py-10">
       <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-8">
         New Context
       </h1>

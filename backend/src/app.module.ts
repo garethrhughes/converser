@@ -21,7 +21,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
       {
         name: 'short',
         ttl: 60000, // 1 minute
-        limit: 10, // 10 requests per minute (general)
+        limit: 100, // 100 requests per minute (general)
       },
     ]),
     LoggerModule.forRootAsync({

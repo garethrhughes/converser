@@ -31,8 +31,10 @@ export function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorP
         }
       }),
       EditorView.theme({
-        '&': { minHeight: '300px' },
-        '.cm-scroller': { minHeight: '300px' },
+        '&': { minHeight: '500px', height: '500px', width: '100%' },
+        '.cm-scroller': { minHeight: '500px', overflow: 'auto' },
+        '.cm-content': { fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace' },
+        '.cm-gutters': { minHeight: '500px' },
       }),
     ];
 
@@ -78,7 +80,7 @@ export function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorP
   return (
     <div
       ref={containerRef}
-      className="border border-zinc-300 rounded-lg overflow-hidden dark:border-zinc-700"
+      className="w-full min-h-[500px] border border-zinc-300 rounded-lg overflow-hidden dark:border-zinc-700"
     />
   );
 }
