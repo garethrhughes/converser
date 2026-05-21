@@ -49,6 +49,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
         database: configService.get<string>('DATABASE_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+        migrationsRun: true,
         synchronize: false,
       }),
     }),

@@ -24,6 +24,11 @@ interface AuthCodeEntry {
   expiresAt: number;
 }
 
+interface AccessCodeEntry {
+  accessToken: string;
+  expiresAt: number;
+}
+
 @Injectable()
 export class AuthService implements OnModuleInit {
   private readonly logger = new Logger(AuthService.name);
@@ -34,6 +39,7 @@ export class AuthService implements OnModuleInit {
   // Short-lived auth codes for the OAuth callback → frontend exchange
   // In production, use Redis or a DB table; in-memory is acceptable for single-instance dev
   private readonly authCodes = new Map<string, AuthCodeEntry>();
+  private readonly accessCodes = new Map<string, AccessCodeEntry>();
 
   constructor(
     @InjectRepository(User)
@@ -190,6 +196,11 @@ export class AuthService implements OnModuleInit {
         this.authCodes.delete(code);
       }
     }
+    for (const [code, entry] of this.accessCodes) {
+      if (entry.expiresAt < now) {
+        this.accessCodes.delete(code);
+      }
+    }
   }
 
   private async generateTokens(user: User): Promise<TokenPair> {
@@ -208,5 +219,34 @@ export class AuthService implements OnModuleInit {
     await this.userRepository.update(user.id, { hashedRefreshToken });
 
     return { accessToken, refreshToken };
+  }
+
+  /**
+   * Creates a short-lived code that can be exchanged for an access token.
+   * Used in the OAuth callback redirect flow — the refresh token is set as a cookie
+   * during the redirect, and this code lets the frontend retrieve the access token.
+   */
+  createAccessCodeForUser(accessToken: string): string {
+    const code = randomBytes(32).toString('hex');
+    this.accessCodes.set(code, {
+      accessToken,
+      expiresAt: Date.now() + 60_000, // 1 minute TTL
+    });
+    this.cleanupExpiredCodes();
+    return code;
+  }
+
+  exchangeAccessCode(code: string): string {
+    const entry = this.accessCodes.get(code);
+    this.accessCodes.delete(code); // Single-use
+
+    if (!entry || entry.expiresAt < Date.now()) {
+      this.logger.warn({
+        msg: 'Invalid or expired access code exchange attempt',
+      });
+      throw new UnauthorizedException('Invalid or expired code');
+    }
+
+    return entry.accessToken;
   }
 }

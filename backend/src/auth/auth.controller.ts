@@ -36,7 +36,7 @@ export class AuthController {
   ) {
     this.frontendUrl = this.configService.get<string>(
       'FRONTEND_URL',
-      'http://localhost:3001',
+      'http://localhost:3000',
     );
     // Default to secure; only disable when explicitly opted out
     this.secureCookies =
@@ -63,23 +63,31 @@ export class AuthController {
   ): Promise<void> {
     const profile = req.user as GoogleProfile;
     const authCode = await this.authService.handleGoogleLogin(profile);
+    const tokens = await this.authService.exchangeAuthCode(authCode);
 
-    // Redirect with a short-lived, single-use auth code (not a token)
-    res.redirect(`${this.frontendUrl}/auth/callback?code=${authCode}`);
+    // Set refresh token cookie during the redirect (browser navigation, not fetch)
+    // This ensures the cookie is set on the localhost domain reliably
+    this.setRefreshTokenCookie(res, tokens.refreshToken);
+
+    // Redirect to frontend with short-lived auth code for the access token
+    const code = await this.authService.createAccessCodeForUser(
+      tokens.accessToken,
+    );
+    res.redirect(`${this.frontendUrl}/auth/callback?code=${code}`);
   }
 
   @Public()
   @Throttle({ short: { ttl: 60000, limit: 5 } }) // 5 per minute per IP
   @Post('exchange')
-  @ApiOperation({ summary: 'Exchange auth code for tokens' })
+  @ApiOperation({ summary: 'Exchange auth code for access token' })
   async exchangeCode(
     @Body() dto: ExchangeCodeDto,
     @Res() res: Response,
   ): Promise<void> {
-    const tokens = await this.authService.exchangeAuthCode(dto.code);
-
-    this.setRefreshTokenCookie(res, tokens.refreshToken);
-    res.json({ accessToken: tokens.accessToken });
+    // The refresh token was already set as a cookie during the redirect.
+    // This endpoint only returns the access token.
+    const accessToken = this.authService.exchangeAccessCode(dto.code);
+    res.json({ accessToken });
   }
 
   @Public()
@@ -133,7 +141,7 @@ export class AuthController {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: this.secureCookies,
-      sameSite: 'strict',
+      sameSite: this.secureCookies ? 'strict' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path: '/',
     });

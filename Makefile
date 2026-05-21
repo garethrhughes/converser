@@ -1,8 +1,9 @@
 .PHONY: start stop up down dev-api dev-web test-api test-web lint-api lint-web build-api build-web migrate plan apply
 
-# Start everything (docker + backend + frontend)
+# Start everything (docker + migrations + backend + frontend)
 start:
-	docker compose up -d
+	docker compose up -d --wait
+	cd backend && npm run migration:run
 	cd backend && npm run start:dev &
 	cd frontend && npm run dev &
 

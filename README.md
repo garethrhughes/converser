@@ -32,9 +32,9 @@ make dev-api   # in one terminal
 make dev-web   # in another terminal
 ```
 
-The backend API will be available at http://localhost:3000.
-The frontend will be available at http://localhost:3001.
-API docs (Swagger) at http://localhost:3000/api-docs.
+The backend API will be available at http://localhost:3001.
+The frontend will be available at http://localhost:3000.
+API docs (Swagger) at http://localhost:3001/api-docs.
 
 ## Available Commands
 
