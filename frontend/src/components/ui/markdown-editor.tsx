@@ -112,7 +112,7 @@ export function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorP
       <div
         ref={containerRef}
         style={{ height: `${height}px` }}
-        className="w-full max-w-full border border-border rounded-xl overflow-hidden"
+        className="w-full max-w-full border border-border overflow-hidden"
       />
     </div>
   );
