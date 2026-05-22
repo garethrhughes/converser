@@ -1,9 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  BedrockRuntimeClient,
-  InvokeModelCommand,
-} from '@aws-sdk/client-bedrock-runtime';
 
 export interface InvokeParams {
   systemPrompt: string;
@@ -13,51 +9,85 @@ export interface InvokeParams {
 @Injectable()
 export class BedrockService {
   private readonly logger = new Logger(BedrockService.name);
-  private readonly client: BedrockRuntimeClient;
+  private readonly apiKey: string;
   private readonly modelId: string;
+  private readonly region: string;
 
   constructor(private readonly configService: ConfigService) {
-    const region = this.configService.get<string>('AWS_REGION');
+    this.region = this.configService.get<string>('AWS_REGION')!;
     this.modelId = this.configService.get<string>('AWS_BEDROCK_MODEL_ID')!;
-
-    this.client = new BedrockRuntimeClient({ region });
+    this.apiKey = this.configService.get<string>('AWS_BEDROCK_API_KEY')!;
   }
 
   async invoke(params: InvokeParams): Promise<string> {
     const { systemPrompt, userMessage } = params;
 
-    const command = new InvokeModelCommand({
-      modelId: this.modelId,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        anthropic_version: 'bedrock-2023-05-31',
-        max_tokens: 4096,
-        system: systemPrompt,
-        messages: [
-          {
-            role: 'user',
-            content: [{ type: 'text', text: userMessage }],
-          },
-        ],
-      }),
+    const url = `https://bedrock-runtime.${this.region}.amazonaws.com/model/${this.modelId}/converse`;
+
+    const body = JSON.stringify({
+      system: [{ text: systemPrompt }],
+      messages: [
+        {
+          role: 'user',
+          content: [{ text: userMessage }],
+        },
+      ],
+      inferenceConfig: {
+        maxTokens: 4096,
+      },
     });
 
     const startTime = Date.now();
-    const response = await this.client.send(command);
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body,
+      });
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error({
+        msg: 'Bedrock request failed',
+        modelId: this.modelId,
+        errorMessage: errMsg,
+      });
+      throw new ServiceUnavailableException('AI service unavailable: network error');
+    }
+
     const durationMs = Date.now() - startTime;
 
-    const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+    if (!response.ok) {
+      const errorBody = await response.text();
+      this.logger.error({
+        msg: 'Bedrock returned error',
+        modelId: this.modelId,
+        statusCode: response.status,
+        errorBody,
+      });
+      throw new ServiceUnavailableException(
+        `AI service error: ${response.status}`,
+      );
+    }
+
+    const responseBody = await response.json();
 
     this.logger.log({
       msg: 'Bedrock invocation complete',
       modelId: this.modelId,
       durationMs,
-      inputTokens: responseBody.usage?.input_tokens,
-      outputTokens: responseBody.usage?.output_tokens,
+      inputTokens: responseBody.usage?.inputTokens,
+      outputTokens: responseBody.usage?.outputTokens,
     });
 
-    const textBlocks = (responseBody.content || []).filter(
-      (block: { type: string }) => block.type === 'text',
+    // Converse API returns output.message.content[].text
+    const contentBlocks = responseBody.output?.message?.content || [];
+    const textBlocks = contentBlocks.filter(
+      (block: { text?: string }) => block.text !== undefined,
     );
 
     return textBlocks.map((block: { text: string }) => block.text).join('');
