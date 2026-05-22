@@ -536,11 +536,16 @@ With status indicator (left border):
 
 ## Dark Mode
 
+### Default: Light
+
+The default theme is **light**. Dark mode is opt-in, toggled by the user. New projects should ship in light mode with dark mode available as a preference.
+
 ### Strategy
 
-- Class-based: `.dark` on `<html>` element
+- **Default:** Light (no class on `<html>`)
+- **Opt-in dark:** Class-based, `.dark` on `<html>` element
 - Tailwind variant: `@variant dark (&:where(.dark, .dark *));`
-- Persistence: `localStorage`
+- Persistence: `localStorage` (respect user preference, do not default to dark)
 - Dark palette: **One Monokai** inspired
 
 ### Implementation
@@ -757,10 +762,11 @@ body {
 ## Quick Reference Card
 
 ```
+Default Theme:     Light (dark is opt-in)
 Brand Primary:     #3b82f6
-Background:        #ffffff / #282c34
-Text:              #1e293b / #abb2bf
-Border:            #e2e8f0 / #3e4451
+Background:        #ffffff (light) / #282c34 (dark)
+Text:              #1e293b (light) / #abb2bf (dark)
+Border:            #e2e8f0 (light) / #3e4451 (dark)
 Font:              Geist (sans), Geist Mono (mono)
 Border Radius:     rounded-xl (cards), rounded-md (buttons), rounded-full (badges)
 Shadows:           shadow-sm (rest) -> shadow-md (hover)

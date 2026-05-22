@@ -4,7 +4,6 @@ import { useRef, useEffect, useState } from 'react';
 import { EditorView, placeholder as editorPlaceholder } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
 import { markdown } from '@codemirror/lang-markdown';
-import { oneDark } from '@codemirror/theme-one-dark';
 
 interface MarkdownEditorProps {
   value: string;
@@ -41,7 +40,6 @@ export function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorP
 
     const extensions = [
       markdown(),
-      oneDark,
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           onChangeRef.current(update.state.doc.toString());
