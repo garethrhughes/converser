@@ -14,6 +14,12 @@ variable "db_instance_class" {
   default     = "db.t4g.micro"
 }
 
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
+}
+
 variable "environment" {
   description = "Environment name"
   type        = string

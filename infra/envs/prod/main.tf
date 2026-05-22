@@ -3,6 +3,12 @@ data "aws_route53_zone" "main" {
   private_zone = false
 }
 
+module "secrets" {
+  source = "../../modules/secrets"
+
+  environment = "prod"
+}
+
 module "dns" {
   source = "../../modules/dns"
 
@@ -33,6 +39,7 @@ module "data" {
   private_subnet_ids = var.private_subnet_ids
   rds_sg_id          = module.network.rds_sg_id
   db_instance_class  = var.db_instance_class
+  db_password        = var.db_password
   environment        = "prod"
 }
 

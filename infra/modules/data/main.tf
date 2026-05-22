@@ -1,10 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_ssm_parameter" "db_password" {
-  name            = "/converser/${var.environment}/db-password"
-  with_decryption = true
-}
-
 resource "aws_kms_key" "rds" {
   description             = "KMS key for Converser RDS encryption"
   deletion_window_in_days = 30
@@ -45,7 +40,7 @@ resource "aws_db_instance" "main" {
 
   db_name  = "converser"
   username = "converser"
-  password = data.aws_ssm_parameter.db_password.value
+  password = var.db_password
 
   allocated_storage     = 20
   max_allocated_storage = 100

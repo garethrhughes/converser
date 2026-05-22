@@ -58,3 +58,9 @@ variable "bedrock_model_arn" {
   description = "ARN of the Bedrock model for IAM policy"
   type        = string
 }
+
+variable "db_password" {
+  description = "Database password for RDS (set via TF_VAR_db_password or -var)"
+  type        = string
+  sensitive   = true
+}
