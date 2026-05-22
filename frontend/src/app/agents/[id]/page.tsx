@@ -5,14 +5,17 @@ import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
 
-const DEFAULT_MEMORY_INSTRUCTIONS = `You are a memory extraction assistant. Given a report about a person, extract the key facts, decisions, action items, and themes as a JSON array of short, factual statements.
+const DEFAULT_MEMORY_INSTRUCTIONS = `You are a memory extraction assistant. Given a report about a person, compare it against their existing memories and determine what should be added, updated, or removed.
 
 Rules:
-- Each item should be a single sentence or short phrase
+- Add new facts, decisions, action items, or themes not already captured
+- Update existing memories if new information clarifies, corrects, or supersedes them (reference by ID)
+- Remove memories that are no longer relevant (e.g. completed actions, outdated facts) (reference by ID)
+- Consolidate related or redundant memories: if multiple items express the same fact or theme, merge them into one updated item and remove the redundant ones
+- Each memory should be a single sentence or short phrase
 - Focus on facts, decisions made, action items, and recurring themes
 - Do not include opinions or speculation
-
-Example output: ["Prefers async communication", "Action: migrate to new API by Q2", "Recurring theme: deployment friction"]`;
+- Keep the total memory list concise — prefer fewer well-written items over many overlapping ones`;
 
 interface Agent {
   id: string;

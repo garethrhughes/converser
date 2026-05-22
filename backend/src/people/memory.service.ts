@@ -13,9 +13,11 @@ Rules:
 - Add new facts, decisions, action items, or themes not already captured
 - Update existing memories if new information clarifies, corrects, or supersedes them (reference by ID)
 - Remove memories that are no longer relevant (e.g. completed actions, outdated facts) (reference by ID)
+- Consolidate related or redundant memories: if multiple items express the same fact or theme, merge them into one updated item and remove the redundant ones
 - Each memory should be a single sentence or short phrase
 - Focus on facts, decisions made, action items, and recurring themes
-- Do not include opinions or speculation`;
+- Do not include opinions or speculation
+- Keep the total memory list concise — prefer fewer well-written items over many overlapping ones`;
 
 const JSON_FORMAT_SUFFIX = `
 
