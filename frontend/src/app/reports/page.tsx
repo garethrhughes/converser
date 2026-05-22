@@ -1,20 +1,26 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
-import type { Report } from '@/types';
+import type { Report, Agent } from '@/types';
 
 export default function ReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>('');
 
-  const fetchReports = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.get<Report[]>('/reports');
-      setReports(data);
+      const [reportsData, agentsData] = await Promise.all([
+        api.get<Report[]>('/reports'),
+        api.get<Agent[]>('/agents'),
+      ]);
+      setReports(reportsData);
+      setAgents(agentsData);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch reports');
@@ -24,8 +30,13 @@ export default function ReportsPage() {
   }, []);
 
   useEffect(() => {
-    fetchReports();
-  }, [fetchReports]);
+    fetchData();
+  }, [fetchData]);
+
+  const filteredReports = useMemo(() => {
+    if (!selectedAgentId) return reports;
+    return reports.filter((r) => r.agent?.id === selectedAgentId);
+  }, [reports, selectedAgentId]);
 
   async function handleDelete(id: string) {
     if (!confirm('Are you sure you want to delete this report?')) return;
@@ -59,6 +70,24 @@ export default function ReportsPage() {
         </Link>
       </div>
 
+      {/* Agent filter */}
+      {agents.length > 0 && reports.length > 0 && (
+        <div className="mb-4">
+          <select
+            value={selectedAgentId}
+            onChange={(e) => setSelectedAgentId(e.target.value)}
+            className="px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white text-zinc-900 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+          >
+            <option value="">All agents</option>
+            {agents.map((agent) => (
+              <option key={agent.id} value={agent.id}>
+                {agent.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm dark:bg-red-950 dark:border-red-800 dark:text-red-300">
           {error}
@@ -77,9 +106,15 @@ export default function ReportsPage() {
             Go to workflow
           </Link>
         </div>
+      ) : filteredReports.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-zinc-500 dark:text-zinc-400">
+            No reports found for this agent.
+          </p>
+        </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {reports.map((report) => (
+          {filteredReports.map((report) => (
             <div
               key={report.id}
               className="border border-zinc-200 rounded-lg p-4 dark:border-zinc-700"
