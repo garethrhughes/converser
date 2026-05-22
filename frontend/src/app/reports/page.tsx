@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import type { Report, Agent, Person } from '@/types';
 
 export default function ReportsPage() {
+  const router = useRouter();
   const [reports, setReports] = useState<Report[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
@@ -134,7 +136,10 @@ export default function ReportsPage() {
               className="rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-start justify-between">
-                <Link href={`/reports/${report.id}`} className="flex-1">
+                <div
+                  className="flex-1 cursor-pointer"
+                  onClick={() => router.push(`/reports/${report.id}`)}
+                >
                   <h2 className="font-medium text-text-primary">{report.title}</h2>
                   <div className="flex items-center gap-3 mt-1">
                     {report.person && (
@@ -162,7 +167,7 @@ export default function ReportsPage() {
                   <p className="text-sm text-text-secondary mt-2 line-clamp-2">
                     {report.content.substring(0, 150)}{report.content.length > 150 ? '...' : ''}
                   </p>
-                </Link>
+                </div>
                 <button
                   onClick={() => handleDelete(report.id)}
                   className="ml-4 p-1 text-text-faint hover:text-red-500 transition-colors"
