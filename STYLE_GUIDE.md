@@ -382,24 +382,57 @@ With status indicator (left border):
 
 ### Button Variants
 
+All interactive elements must use `cursor-pointer`. Browsers do not apply `cursor: pointer` to `<button>` elements by default -- they use `cursor: default`. Always add it explicitly.
+
+```css
+/* In globals.css -- apply globally to all interactive elements */
+button, [role="button"], a, select, summary,
+input[type="checkbox"], input[type="radio"], input[type="submit"],
+input[type="reset"], input[type="button"], label[for] {
+  cursor: pointer;
+}
+
+button:disabled, [role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+```
+
+Alternatively, include `cursor-pointer` in every button/link class:
+
 ```tsx
 /* Primary */
-<button className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium
-                   text-primary-fg transition-colors hover:bg-primary-hover">
+<button className="cursor-pointer rounded-md bg-primary px-3 py-1.5 text-sm
+                   font-medium text-primary-fg transition-colors
+                   hover:bg-primary-hover disabled:cursor-not-allowed
+                   disabled:opacity-50">
 
 /* Secondary / Ghost */
-<button className="rounded-md px-3 py-1.5 text-sm font-medium text-text-tertiary
-                   transition-colors hover:bg-surface-hover">
+<button className="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium
+                   text-text-tertiary transition-colors hover:bg-surface-hover
+                   disabled:cursor-not-allowed disabled:opacity-50">
 
 /* Danger */
-<button className="rounded-md bg-red-500 px-3 py-1.5 text-sm font-medium
-                   text-white transition-colors hover:bg-red-600">
+<button className="cursor-pointer rounded-md bg-red-500 px-3 py-1.5 text-sm
+                   font-medium text-white transition-colors hover:bg-red-600
+                   disabled:cursor-not-allowed disabled:opacity-50">
 
 /* Outline */
-<button className="rounded-md border border-border px-3 py-1.5 text-sm
-                   font-medium text-text-secondary transition-colors
-                   hover:bg-surface-hover">
+<button className="cursor-pointer rounded-md border border-border px-3 py-1.5
+                   text-sm font-medium text-text-secondary transition-colors
+                   hover:bg-surface-hover disabled:cursor-not-allowed
+                   disabled:opacity-50">
 ```
+
+#### Cursor Rules
+
+| State | Cursor | Class |
+|-------|--------|-------|
+| Interactive (button, link, toggle) | `pointer` | `cursor-pointer` |
+| Disabled | `not-allowed` | `disabled:cursor-not-allowed` |
+| Loading/in-progress | `wait` | `cursor-wait` |
+| Text input | `text` | `cursor-text` (default for inputs) |
+| Drag handle | `grab` / `grabbing` | `cursor-grab` / `active:cursor-grabbing` |
+| Non-interactive | `default` | (browser default, no class needed) |
 
 ### Badge / Pill
 
@@ -414,12 +447,12 @@ With status indicator (left border):
 
 ```tsx
 /* Default */
-<button className="rounded-lg border border-border px-3 py-1.5 text-sm
-                   font-medium text-text-secondary transition-colors
+<button className="cursor-pointer rounded-lg border border-border px-3 py-1.5
+                   text-sm font-medium text-text-secondary transition-colors
                    hover:bg-surface-hover">
 
 /* Selected */
-<button className="rounded-lg border border-interactive-selected-border
+<button className="cursor-pointer rounded-lg border border-interactive-selected-border
                    bg-interactive-selected-bg px-3 py-1.5 text-sm font-medium
                    text-interactive-selected-fg">
 ```
@@ -925,6 +958,17 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+/* ─── Cursors ─── */
+button, [role="button"], a, select, summary,
+input[type="checkbox"], input[type="radio"], input[type="submit"],
+input[type="reset"], input[type="button"], label[for] {
+  cursor: pointer;
+}
+
+button:disabled, [role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
 }
 
 /* ─── Scrollbar ─── */

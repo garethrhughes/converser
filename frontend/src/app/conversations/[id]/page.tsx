@@ -96,15 +96,15 @@ export default function ViewConversationPage() {
       ) : (
         <>
           {/* Section Tabs */}
-          <div className="flex flex-wrap gap-1 mb-6 border-b border-border pb-2">
+          <div className="flex border-b border-border mb-0">
             {sortedSections.map((section) => (
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section)}
-                className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+                className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
                   activeSection?.id === section.id
-                    ? 'bg-primary text-white'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-alt  dark:hover:text-text-primary dark:hover:bg-zinc-800'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-text-tertiary hover:text-text-primary hover:border-border'
                 }`}
               >
                 {section.title}
@@ -114,13 +114,15 @@ export default function ViewConversationPage() {
 
           {/* Section Content — read-only CodeMirror */}
           {activeSection && (
-            <MarkdownEditor
-              value={activeSection.content}
-              onChange={() => {
-                // Read-only: changes are intentionally discarded
-              }}
-              placeholder=""
-            />
+            <div className="border border-t-0 border-border rounded-b-xl overflow-hidden">
+              <MarkdownEditor
+                value={activeSection.content}
+                onChange={() => {
+                  // Read-only: changes are intentionally discarded
+                }}
+                placeholder=""
+              />
+            </div>
           )}
         </>
       )}
