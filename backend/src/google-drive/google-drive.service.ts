@@ -22,6 +22,36 @@ export class GoogleDriveService {
     const oauth2Client = new google.auth.OAuth2();
     oauth2Client.setCredentials({ access_token: accessToken });
 
+    // First, get file metadata to determine the MIME type
+    const drive = google.drive({ version: 'v3', auth: oauth2Client });
+    const fileMeta = await drive.files.get({
+      fileId: documentId,
+      fields: 'id,name,mimeType',
+    });
+
+    const mimeType = fileMeta.data.mimeType || '';
+    const fileName = fileMeta.data.name || 'Untitled';
+
+    this.logger.log({ msg: 'Fetching Google Drive file', documentId, mimeType });
+
+    // Google Docs — use Docs API for tab support
+    if (mimeType === 'application/vnd.google-apps.document') {
+      return this.fetchGoogleDoc(oauth2Client, documentId);
+    }
+
+    // Plain text or markdown files — download content directly
+    if (mimeType === 'text/plain' || mimeType === 'text/markdown') {
+      return this.fetchDriveFile(drive, documentId, fileName);
+    }
+
+    // Fallback: try to fetch as Google Doc
+    return this.fetchGoogleDoc(oauth2Client, documentId);
+  }
+
+  private async fetchGoogleDoc(
+    oauth2Client: InstanceType<typeof google.auth.OAuth2>,
+    documentId: string,
+  ): Promise<ParsedDocument> {
     const docs = google.docs({ version: 'v1', auth: oauth2Client });
 
     this.logger.log({ msg: 'Fetching Google Doc', documentId });
@@ -44,6 +74,32 @@ export class GoogleDriveService {
     });
 
     return { title, sections };
+  }
+
+  private async fetchDriveFile(
+    drive: ReturnType<typeof google.drive>,
+    fileId: string,
+    fileName: string,
+  ): Promise<ParsedDocument> {
+    const response = await drive.files.get(
+      { fileId, alt: 'media' },
+      { responseType: 'text' },
+    );
+
+    const content = response.data as string;
+    const title = fileName.replace(/\.(md|txt)$/i, '');
+
+    this.logger.log({
+      msg: 'Drive file fetched successfully',
+      fileId,
+      title,
+      contentLength: content.length,
+    });
+
+    return {
+      title,
+      sections: [{ title: 'Main', content }],
+    };
   }
 
   private parseTabs(document: docs_v1.Schema$Document): DocumentSection[] {

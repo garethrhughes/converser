@@ -2,7 +2,8 @@ import { GoogleDriveService } from './google-drive.service';
 import { google } from 'googleapis';
 
 jest.mock('googleapis', () => {
-  const mockGet = jest.fn();
+  const mockDocsGet = jest.fn();
+  const mockDriveGet = jest.fn();
   return {
     google: {
       auth: {
@@ -11,16 +12,21 @@ jest.mock('googleapis', () => {
         })),
       },
       docs: jest.fn().mockReturnValue({
-        documents: { get: mockGet },
+        documents: { get: mockDocsGet },
+      }),
+      drive: jest.fn().mockReturnValue({
+        files: { get: mockDriveGet },
       }),
     },
-    __mockGet: mockGet,
+    __mockDocsGet: mockDocsGet,
+    __mockDriveGet: mockDriveGet,
   };
 });
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { __mockGet: mockGet } = require('googleapis') as {
-  __mockGet: jest.Mock;
+const { __mockDocsGet: mockDocsGet, __mockDriveGet: mockDriveGet } = require('googleapis') as {
+  __mockDocsGet: jest.Mock;
+  __mockDriveGet: jest.Mock;
 };
 
 describe('GoogleDriveService', () => {
@@ -32,8 +38,15 @@ describe('GoogleDriveService', () => {
   });
 
   describe('fetchDocument', () => {
+    function mockDriveMetadata(mimeType: string, name = 'Test Document') {
+      mockDriveGet.mockResolvedValueOnce({
+        data: { id: 'mock-document-id', name, mimeType },
+      });
+    }
+
     it('returns parsed document with single tab as Main section', async () => {
-      mockGet.mockResolvedValue({
+      mockDriveMetadata('application/vnd.google-apps.document');
+      mockDocsGet.mockResolvedValue({
         data: {
           title: 'Test Document',
           tabs: [
@@ -67,7 +80,8 @@ describe('GoogleDriveService', () => {
     });
 
     it('returns multiple sections for multiple tabs', async () => {
-      mockGet.mockResolvedValue({
+      mockDriveMetadata('application/vnd.google-apps.document');
+      mockDocsGet.mockResolvedValue({
         data: {
           title: 'Multi-Tab Doc',
           tabs: [
@@ -117,7 +131,8 @@ describe('GoogleDriveService', () => {
     });
 
     it('handles document with no tabs by returning empty Main section', async () => {
-      mockGet.mockResolvedValue({
+      mockDriveMetadata('application/vnd.google-apps.document');
+      mockDocsGet.mockResolvedValue({
         data: {
           title: 'Empty Doc',
           tabs: [],
@@ -137,7 +152,8 @@ describe('GoogleDriveService', () => {
     });
 
     it('uses section index for unnamed tabs', async () => {
-      mockGet.mockResolvedValue({
+      mockDriveMetadata('application/vnd.google-apps.document');
+      mockDocsGet.mockResolvedValue({
         data: {
           title: 'Unnamed Tabs Doc',
           tabs: [
@@ -166,8 +182,9 @@ describe('GoogleDriveService', () => {
       expect(result.sections[1].title).toBe('Section 2');
     });
 
-    it('calls Google Docs API with correct parameters', async () => {
-      mockGet.mockResolvedValue({
+    it('calls Google Docs API with correct parameters for Google Docs', async () => {
+      mockDriveMetadata('application/vnd.google-apps.document');
+      mockDocsGet.mockResolvedValue({
         data: {
           title: 'API Test',
           tabs: [
@@ -185,10 +202,45 @@ describe('GoogleDriveService', () => {
         version: 'v1',
         auth: expect.objectContaining({}),
       });
-      expect(mockGet).toHaveBeenCalledWith({
+      expect(mockDocsGet).toHaveBeenCalledWith({
         documentId: 'doc-abc-123',
         includeTabsContent: true,
       });
+    });
+
+    it('downloads markdown files directly via Drive API', async () => {
+      mockDriveMetadata('text/markdown', 'meeting-notes.md');
+      mockDriveGet.mockResolvedValueOnce({
+        data: '# Meeting Notes\n\n- Item 1\n- Item 2',
+      });
+
+      const result = await service.fetchDocument(
+        'mock-access-token',
+        'file-id-123',
+      );
+
+      expect(result.title).toBe('meeting-notes');
+      expect(result.sections).toHaveLength(1);
+      expect(result.sections[0].title).toBe('Main');
+      expect(result.sections[0].content).toBe('# Meeting Notes\n\n- Item 1\n- Item 2');
+      expect(mockDocsGet).not.toHaveBeenCalled();
+    });
+
+    it('downloads plain text files directly via Drive API', async () => {
+      mockDriveMetadata('text/plain', 'notes.txt');
+      mockDriveGet.mockResolvedValueOnce({
+        data: 'Some plain text content here.',
+      });
+
+      const result = await service.fetchDocument(
+        'mock-access-token',
+        'file-id-456',
+      );
+
+      expect(result.title).toBe('notes');
+      expect(result.sections).toHaveLength(1);
+      expect(result.sections[0].content).toBe('Some plain text content here.');
+      expect(mockDocsGet).not.toHaveBeenCalled();
     });
   });
 });

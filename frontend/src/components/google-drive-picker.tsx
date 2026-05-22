@@ -85,7 +85,13 @@ export function GoogleDrivePicker({ onSelect, onCancel }: GoogleDrivePickerProps
         const docsView = new window.google.picker.DocsView(
           window.google.picker.ViewId.DOCUMENTS
         )
-          .setMimeTypes('application/vnd.google-apps.document,text/plain')
+          .setMimeTypes('application/vnd.google-apps.document')
+          .setMode(window.google.picker.DocsViewMode.LIST);
+
+        const filesView = new window.google.picker.DocsView(
+          window.google.picker.ViewId.DOCS
+        )
+          .setMimeTypes('text/plain,text/markdown')
           .setMode(window.google.picker.DocsViewMode.LIST);
 
         const picker = new window.google.picker.PickerBuilder()
@@ -93,6 +99,7 @@ export function GoogleDrivePicker({ onSelect, onCancel }: GoogleDrivePickerProps
           .setDeveloperKey('')
           .setAppId(clientId)
           .addView(docsView)
+          .addView(filesView)
           .setCallback((data: { action: string; docs?: Array<{ id: string }> }) => {
             if (data.action === window.google.picker.Action.PICKED && data.docs?.[0]) {
               onSelect(data.docs[0].id);
