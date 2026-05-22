@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import type { Report } from '@/types';
 
@@ -65,12 +66,10 @@ export default function ReportDetailPage() {
       <div className="flex items-center gap-3 mb-6">
         <Link
           href="/reports"
-          className="p-1 rounded hover:bg-surface-alt dark:hover:bg-zinc-800 transition-colors"
+          className="p-1 rounded hover:bg-surface-raised transition-colors"
           aria-label="Back to reports"
         >
-          <svg className="w-5 h-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          <ArrowLeft className="h-5 w-5 text-text-tertiary" />
         </Link>
         <div className="flex-1">
           <h1 className="text-xl font-semibold text-text-primary">
@@ -78,14 +77,20 @@ export default function ReportDetailPage() {
           </h1>
           <div className="flex items-center gap-3 mt-1">
             {report.person && (
-              <span className="text-xs text-text-muted">
+              <Link
+                href={`/people/${report.person.id}`}
+                className="text-xs text-primary hover:underline"
+              >
                 {report.person.name}
-              </span>
+              </Link>
             )}
             {report.agent && (
-              <span className="text-xs bg-surface-alt text-text-secondary px-2 py-0.5 rounded bg-surface-alt ">
+              <Link
+                href={`/agents/${report.agent.id}`}
+                className="text-xs bg-surface-alt text-text-tertiary px-2 py-0.5 rounded hover:text-primary"
+              >
                 {report.agent.name}
-              </span>
+              </Link>
             )}
             <span className="text-xs text-text-faint">
               {new Date(report.createdAt).toLocaleDateString()} at{' '}
@@ -98,9 +103,7 @@ export default function ReportDetailPage() {
           className="p-2 text-text-faint hover:text-red-500 transition-colors"
           aria-label="Delete report"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-          </svg>
+          <Trash2 className="h-5 w-5" />
         </button>
       </div>
 

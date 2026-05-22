@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Check, ChevronLeft } from 'lucide-react';
 import { api } from '@/lib/api';
 import type {
   Person,
@@ -355,13 +357,7 @@ export function AnalysisWorkflow() {
                         }`}
                       >
                         {isSelected && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                          <Check className="w-3 h-3 text-white" />
                         )}
                       </div>
                       <p className="font-medium text-text-primary">{ctx.name}</p>
@@ -473,12 +469,28 @@ export function AnalysisWorkflow() {
               <Markdown remarkPlugins={[remarkGfm]}>{report.content}</Markdown>
             </div>
           </div>
-          <button
-            onClick={handleReset}
-            className="px-4 py-2 bg-zinc-200 text-text-primary rounded-lg hover:bg-zinc-300 transition-colors bg-surface-raised  dark:hover:bg-zinc-600"
-          >
-            Start New Analysis
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/reports/${report.id}`}
+              className="px-4 py-2 bg-primary text-primary-fg rounded-lg hover:bg-primary-hover transition-colors text-sm font-medium"
+            >
+              View Report
+            </Link>
+            {selectedPerson && (
+              <Link
+                href={`/people/${selectedPerson.id}`}
+                className="px-4 py-2 text-sm font-medium text-text-tertiary border border-border rounded-lg transition-colors hover:bg-surface-raised hover:text-text-primary hover:border-squirrel-300"
+              >
+                View {selectedPerson.name}
+              </Link>
+            )}
+            <button
+              onClick={handleReset}
+              className="px-4 py-2 text-sm font-medium text-text-tertiary border border-border rounded-lg transition-colors hover:bg-surface-raised hover:text-text-primary hover:border-squirrel-300"
+            >
+              Start New Analysis
+            </button>
+          </div>
         </StepContainer>
       )}
     </div>
@@ -505,9 +517,7 @@ function StepContainer({
             className="p-1 rounded hover:bg-surface-alt dark:hover:bg-zinc-800 transition-colors"
             aria-label="Go back"
           >
-            <svg className="w-5 h-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ChevronLeft className="w-5 h-5 text-text-secondary" />
           </button>
         )}
         <div>

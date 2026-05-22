@@ -3,30 +3,36 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Home,
+  Sparkles,
   MessageSquare,
   Users,
-  Sparkles,
+  Bot,
   FileText,
   ClipboardList,
   LogOut,
 } from 'lucide-react';
 
-const navItems = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/conversations', label: 'Conversations', icon: MessageSquare },
+const mainNavItems = [
+  { href: '/', label: 'Analyse', icon: Sparkles },
   { href: '/people', label: 'People', icon: Users },
-  { href: '/agents', label: 'Agents', icon: Sparkles },
-  { href: '/contexts', label: 'Contexts', icon: FileText },
   { href: '/reports', label: 'Reports', icon: ClipboardList },
+  { href: '/conversations', label: 'Conversations', icon: MessageSquare },
+];
+
+const settingsNavItems = [
+  { href: '/agents', label: 'Agents', icon: Bot },
+  { href: '/contexts', label: 'Contexts', icon: FileText },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
-  // Don't show sidebar on login/auth/logout pages
   if (pathname.startsWith('/login') || pathname.startsWith('/auth') || pathname.startsWith('/logout')) {
     return null;
+  }
+
+  function isActive(href: string) {
+    return href === '/' ? pathname === '/' : pathname.startsWith(href);
   }
 
   return (
@@ -41,24 +47,20 @@ export function Sidebar() {
         <span className="text-lg font-semibold text-text-primary">Converser</span>
       </Link>
 
-      <nav className="flex-1 py-4">
+      <nav className="flex-1 py-4 flex flex-col">
+        {/* Main navigation */}
         <ul className="space-y-1 px-3">
-          {navItems.map((item) => {
-            const isActive =
-              item.href === '/'
-                ? pathname === '/'
-                : pathname.startsWith(item.href);
-
+          {mainNavItems.map((item) => {
             const Icon = item.icon;
-
+            const active = isActive(item.href);
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-interactive-selected-bg text-interactive-selected-fg border border-interactive-selected-border'
-                      : 'text-text-tertiary hover:bg-surface-raised hover:text-text-primary hover:border-squirrel-300 border border-transparent'
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors border ${
+                    active
+                      ? 'bg-interactive-selected-bg text-interactive-selected-fg border-interactive-selected-border'
+                      : 'text-text-tertiary border-transparent hover:bg-surface-raised hover:text-text-primary hover:border-squirrel-300'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -68,6 +70,38 @@ export function Sidebar() {
             );
           })}
         </ul>
+
+        {/* Separator */}
+        <div className="my-4 mx-3 border-t border-border" />
+
+        {/* Settings */}
+        <div className="px-3">
+          <p className="px-3 mb-2 text-xs font-medium text-text-muted uppercase tracking-wider">Settings</p>
+          <ul className="space-y-1">
+            {settingsNavItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors border ${
+                      active
+                        ? 'bg-interactive-selected-bg text-interactive-selected-fg border-interactive-selected-border'
+                        : 'text-text-tertiary border-transparent hover:bg-surface-raised hover:text-text-primary hover:border-squirrel-300'
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Spacer */}
+        <div className="flex-1" />
       </nav>
 
       <div className="px-3 py-4 border-t border-border">
