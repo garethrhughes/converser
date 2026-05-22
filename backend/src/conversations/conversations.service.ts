@@ -24,9 +24,14 @@ export class ConversationsService {
     private readonly configService: ConfigService,
   ) {}
 
-  async findAll(userId: string): Promise<Conversation[]> {
+  async findAll(userId: string, personId?: string): Promise<Conversation[]> {
+    const where: Record<string, string> = { userId };
+    if (personId) {
+      where.personId = personId;
+    }
+
     return this.conversationRepository.find({
-      where: { userId },
+      where,
       relations: { person: true },
       order: { createdAt: 'DESC' },
     });

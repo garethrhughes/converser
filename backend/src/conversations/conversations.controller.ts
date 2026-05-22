@@ -5,6 +5,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   Request,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -21,8 +22,8 @@ export class ConversationsController {
   constructor(private readonly conversationsService: ConversationsService) {}
 
   @Get()
-  findAll(@Request() req: JwtRequest) {
-    return this.conversationsService.findAll(req.user.sub);
+  findAll(@Request() req: JwtRequest, @Query('personId') personId?: string) {
+    return this.conversationsService.findAll(req.user.sub, personId);
   }
 
   @Get(':id')

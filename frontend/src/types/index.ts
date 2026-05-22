@@ -45,3 +45,23 @@ export interface Context {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Report {
+  id: string;
+  title: string;
+  content: string;
+  modelId: string;
+  person?: Person;
+  conversation?: Conversation;
+  conversationSection?: ConversationSection;
+  agent?: Agent;
+  createdAt: string;
+}
+
+export interface GenerateReportRequest {
+  personId: string;
+  conversationId: string;
+  sectionId?: string;
+  contextIds: string[];
+  agentId: string;
+}

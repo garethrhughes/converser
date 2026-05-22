@@ -12,6 +12,7 @@ import { AgentsModule } from './agents/agents.module';
 import { ContextsModule } from './contexts/contexts.module';
 import { PeopleModule } from './people/people.module';
 import { ConversationsModule } from './conversations/conversations.module';
+import { ReportsModule } from './reports/reports.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
@@ -62,6 +63,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     ContextsModule,
     PeopleModule,
     ConversationsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [
