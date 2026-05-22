@@ -1,20 +1,37 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Memory } from '../database/entities/memory.entity';
 import { Person } from '../database/entities/person.entity';
+import { MemoryChanges } from '../database/entities/report.entity';
 import { BedrockService } from '../reports/bedrock.service';
 import { UpdateMemoryDto } from './dto/update-memory.dto';
 
-const DEFAULT_EXTRACTION_PROMPT = `You are a memory extraction assistant. Given a report about a person, extract the key facts, decisions, action items, and themes as a JSON array of short, factual statements.
+const DEFAULT_EXTRACTION_PROMPT = `You are a memory extraction assistant. Given a report about a person, compare it against their existing memories and determine what should be added, updated, or removed.
 
 Rules:
-- Each item should be a single sentence or short phrase
+- Add new facts, decisions, action items, or themes not already captured
+- Update existing memories if new information clarifies, corrects, or supersedes them (reference by ID)
+- Remove memories that are no longer relevant (e.g. completed actions, outdated facts) (reference by ID)
+- Each memory should be a single sentence or short phrase
 - Focus on facts, decisions made, action items, and recurring themes
-- Do not include opinions or speculation
-- Return ONLY a valid JSON array of strings, nothing else
+- Do not include opinions or speculation`;
 
-Example output: ["Prefers async communication", "Action: migrate to new API by Q2", "Recurring theme: deployment friction"]`;
+const JSON_FORMAT_SUFFIX = `
+
+Return a JSON object with exactly three keys:
+- "add": array of new memory strings to create
+- "update": array of objects { "id": string, "content": string } for memories to modify
+- "remove": array of memory ID strings to delete
+
+If no changes are needed for a category, use an empty array.
+IMPORTANT: Return ONLY a valid JSON object with these three keys, nothing else.`;
+
+interface ExtractionDiff {
+  add: string[];
+  update: Array<{ id: string; content: string }>;
+  remove: string[];
+}
 
 @Injectable()
 export class MemoryService {
@@ -85,49 +102,60 @@ export class MemoryService {
     reportId: string,
     reportContent: string,
     customExtractionPrompt?: string,
-  ): Promise<void> {
+  ): Promise<MemoryChanges | null> {
     try {
-      const JSON_SUFFIX = '\n\nIMPORTANT: Return ONLY a valid JSON array of strings, nothing else.';
+      // Load existing memories
+      const existingMemories = await this.memoryRepository.find({
+        where: { userId, personId },
+        order: { createdAt: 'ASC' },
+      });
+
+      // Build the prompt
       const basePrompt = customExtractionPrompt || DEFAULT_EXTRACTION_PROMPT;
-      const systemPrompt = customExtractionPrompt
-        ? basePrompt + JSON_SUFFIX
-        : basePrompt;
+      const memoriesContext = this.buildMemoriesContext(existingMemories);
+      const systemPrompt = basePrompt + memoriesContext + JSON_FORMAT_SUFFIX;
 
       const response = await this.bedrockService.invoke({
         systemPrompt,
         userMessage: reportContent,
       });
 
-      const items = this.parseExtractionResponse(response);
+      const diff = this.parseExtractionDiff(response);
+      if (!diff) {
+        return null;
+      }
 
-      if (items.length === 0) {
+      // Apply the diff and build the changes record
+      const changes = await this.applyDiff(
+        userId,
+        personId,
+        reportId,
+        diff,
+        existingMemories,
+      );
+
+      // If no actual changes were applied (e.g. all IDs were invalid), return null
+      if (changes.added.length === 0 && changes.updated.length === 0 && changes.removed.length === 0) {
         this.logger.log({
-          msg: 'No memory items extracted',
+          msg: 'No memory changes applied after diff',
           userId,
           personId,
           reportId,
         });
-        return;
+        return null;
       }
 
-      const memories = items.map((content) =>
-        this.memoryRepository.create({
-          userId,
-          personId,
-          reportId,
-          content,
-        }),
-      );
-
-      await this.memoryRepository.save(memories);
-
       this.logger.log({
-        msg: 'Memory items extracted and stored',
+        msg: 'Memory evolution applied',
         userId,
         personId,
         reportId,
-        count: memories.length,
+        added: changes.added.length,
+        updated: changes.updated.length,
+        removed: changes.removed.length,
       });
+
+      return changes;
     } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : 'Unknown error';
       this.logger.error({
@@ -137,13 +165,87 @@ export class MemoryService {
         reportId,
         errorMessage: errMsg,
       });
-      // Non-fatal — do not rethrow
+      return null;
     }
   }
 
-  private parseExtractionResponse(response: string): string[] {
+  private buildMemoriesContext(memories: Memory[]): string {
+    if (memories.length === 0) {
+      return '\n\nThis person has no existing memories yet.';
+    }
+
+    const items = memories
+      .map((m) => `- [id:${m.id}] ${m.content}`)
+      .join('\n');
+
+    return `\n\nCurrent memories for this person (reference by ID to update or remove):\n${items}`;
+  }
+
+  private async applyDiff(
+    userId: string,
+    personId: string,
+    reportId: string,
+    diff: ExtractionDiff,
+    existingMemories: Memory[],
+  ): Promise<MemoryChanges> {
+    const changes: MemoryChanges = {
+      added: [],
+      updated: [],
+      removed: [],
+    };
+
+    // Process additions
+    if (diff.add.length > 0) {
+      const newMemories = diff.add.map((content) =>
+        this.memoryRepository.create({ userId, personId, reportId, content }),
+      );
+      const saved = await this.memoryRepository.save(newMemories);
+      changes.added = saved.map((m) => ({ id: m.id, content: m.content }));
+    }
+
+    // Process updates
+    if (diff.update.length > 0) {
+      const memoryMap = new Map(existingMemories.map((m) => [m.id, m]));
+
+      for (const upd of diff.update) {
+        const existing = memoryMap.get(upd.id);
+        if (!existing) continue; // Skip if ID doesn't exist
+
+        const previousContent = existing.content;
+        existing.content = upd.content;
+        await this.memoryRepository.save(existing);
+
+        changes.updated.push({
+          id: upd.id,
+          previousContent,
+          content: upd.content,
+        });
+      }
+    }
+
+    // Process removals
+    if (diff.remove.length > 0) {
+      const memoryMap = new Map(existingMemories.map((m) => [m.id, m]));
+      const toRemove: Memory[] = [];
+
+      for (const id of diff.remove) {
+        const existing = memoryMap.get(id);
+        if (!existing) continue; // Skip if ID doesn't exist
+
+        changes.removed.push({ id, content: existing.content });
+        toRemove.push(existing);
+      }
+
+      if (toRemove.length > 0) {
+        await this.memoryRepository.remove(toRemove);
+      }
+    }
+
+    return changes;
+  }
+
+  private parseExtractionDiff(response: string): ExtractionDiff | null {
     try {
-      // Strip any markdown code fences if present
       const cleaned = response
         .replace(/^```(?:json)?\s*/m, '')
         .replace(/\s*```\s*$/m, '')
@@ -151,22 +253,54 @@ export class MemoryService {
 
       const parsed = JSON.parse(cleaned);
 
-      if (!Array.isArray(parsed)) {
-        this.logger.warn({
-          msg: 'Extraction response is not an array',
-        });
-        return [];
+      // Validate structure
+      if (typeof parsed !== 'object' || parsed === null) {
+        this.logger.warn({ msg: 'Extraction response is not an object' });
+        return null;
       }
 
-      return parsed.filter(
-        (item): item is string =>
-          typeof item === 'string' && item.trim().length > 0,
-      );
+      const diff: ExtractionDiff = {
+        add: [],
+        update: [],
+        remove: [],
+      };
+
+      // Parse additions
+      if (Array.isArray(parsed.add)) {
+        diff.add = parsed.add.filter(
+          (item: unknown): item is string =>
+            typeof item === 'string' && item.trim().length > 0,
+        );
+      }
+
+      // Parse updates
+      if (Array.isArray(parsed.update)) {
+        diff.update = parsed.update.filter(
+          (item: unknown): item is { id: string; content: string } =>
+            typeof item === 'object' &&
+            item !== null &&
+            typeof (item as { id?: unknown }).id === 'string' &&
+            typeof (item as { content?: unknown }).content === 'string',
+        );
+      }
+
+      // Parse removals
+      if (Array.isArray(parsed.remove)) {
+        diff.remove = parsed.remove.filter(
+          (item: unknown): item is string => typeof item === 'string',
+        );
+      }
+
+      // Check if anything changed
+      if (diff.add.length === 0 && diff.update.length === 0 && diff.remove.length === 0) {
+        this.logger.log({ msg: 'No memory changes in extraction response' });
+        return null;
+      }
+
+      return diff;
     } catch {
-      this.logger.warn({
-        msg: 'Failed to parse extraction response as JSON',
-      });
-      return [];
+      this.logger.warn({ msg: 'Failed to parse extraction response as JSON' });
+      return null;
     }
   }
 }

@@ -109,6 +109,59 @@ export default function ReportDetailPage() {
           <Markdown remarkPlugins={[remarkGfm]}>{report.content}</Markdown>
         </div>
       </div>
+
+      {/* Memory Changes */}
+      {report.memoryChanges && (
+        report.memoryChanges.added.length > 0 ||
+        report.memoryChanges.updated.length > 0 ||
+        report.memoryChanges.removed.length > 0
+      ) && (
+        <div className="mt-6 border border-zinc-200 rounded-lg p-6 dark:border-zinc-700">
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+            Memory Changes
+          </h2>
+
+          {report.memoryChanges.added.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-xs font-medium text-green-700 dark:text-green-400 uppercase mb-2">Added</h3>
+              <div className="flex flex-col gap-1">
+                {report.memoryChanges.added.map((item) => (
+                  <div key={item.id} className="border-l-2 border-green-400 pl-3 py-1">
+                    <p className="text-sm text-zinc-800 dark:text-zinc-200">{item.content}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {report.memoryChanges.updated.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-xs font-medium text-yellow-700 dark:text-yellow-400 uppercase mb-2">Updated</h3>
+              <div className="flex flex-col gap-1">
+                {report.memoryChanges.updated.map((item) => (
+                  <div key={item.id} className="border-l-2 border-yellow-400 pl-3 py-1">
+                    <p className="text-sm text-zinc-400 line-through dark:text-zinc-500">{item.previousContent}</p>
+                    <p className="text-sm text-zinc-800 dark:text-zinc-200">{item.content}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {report.memoryChanges.removed.length > 0 && (
+            <div>
+              <h3 className="text-xs font-medium text-red-700 dark:text-red-400 uppercase mb-2">Removed</h3>
+              <div className="flex flex-col gap-1">
+                {report.memoryChanges.removed.map((item) => (
+                  <div key={item.id} className="border-l-2 border-red-400 pl-3 py-1">
+                    <p className="text-sm text-zinc-400 line-through dark:text-zinc-500">{item.content}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

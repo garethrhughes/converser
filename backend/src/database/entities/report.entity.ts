@@ -12,6 +12,12 @@ import { Conversation } from './conversation.entity';
 import { ConversationSection } from './conversation-section.entity';
 import { Agent } from './agent.entity';
 
+export interface MemoryChanges {
+  added: Array<{ id: string; content: string }>;
+  updated: Array<{ id: string; previousContent: string; content: string }>;
+  removed: Array<{ id: string; content: string }>;
+}
+
 @Entity('reports')
 export class Report {
   @PrimaryGeneratedColumn('uuid')
@@ -40,6 +46,9 @@ export class Report {
 
   @Column({ name: 'model_id', length: 255 })
   modelId!: string;
+
+  @Column({ name: 'memory_changes', type: 'jsonb', nullable: true })
+  memoryChanges?: MemoryChanges;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;

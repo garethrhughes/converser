@@ -46,11 +46,18 @@ export interface Context {
   updatedAt: string;
 }
 
+export interface MemoryChanges {
+  added: Array<{ id: string; content: string }>;
+  updated: Array<{ id: string; previousContent: string; content: string }>;
+  removed: Array<{ id: string; content: string }>;
+}
+
 export interface Report {
   id: string;
   title: string;
   content: string;
   modelId: string;
+  memoryChanges?: MemoryChanges;
   person?: Person;
   conversation?: Conversation;
   conversationSection?: ConversationSection;

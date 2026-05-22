@@ -167,6 +167,13 @@ export class ReportsService {
     setImmediate(() => {
       this.memoryService
         .extractAndStore(userId, dto.personId, saved.id, content, agent.memoryInstructions)
+        .then(async (changes) => {
+          if (changes) {
+            await this.reportRepository.update(saved.id, {
+              memoryChanges: changes,
+            });
+          }
+        })
         .catch(() => {
           // Already logged inside extractAndStore
         });
