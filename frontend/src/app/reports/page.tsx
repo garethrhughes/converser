@@ -76,7 +76,7 @@ export default function ReportsPage() {
           <select
             value={selectedAgentId}
             onChange={(e) => setSelectedAgentId(e.target.value)}
-            className="px-3 py-2 border border-border rounded-lg text-sm bg-white text-text-primary bg-surface-alt  "
+            className="px-3 py-2 border border-border rounded-lg text-sm bg-transparent text-text-primary transition-colors hover:border-squirrel-300 focus:border-squirrel-400 focus:ring-1 focus:ring-squirrel-400 focus:outline-none  "
           >
             <option value="">All agents</option>
             {agents.map((agent) => (

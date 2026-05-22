@@ -84,7 +84,7 @@ export default function EditContextPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-border rounded-md text-text-primary placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-surface-alt  "
+            className="w-full px-3 py-2 border border-border rounded-md bg-transparent text-text-primary placeholder:text-text-faint transition-colors hover:border-squirrel-300 focus:border-squirrel-400 focus:ring-1 focus:ring-squirrel-400 focus:outline-none  "
             placeholder="Context name"
           />
         </div>
@@ -98,7 +98,7 @@ export default function EditContextPage() {
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3 py-2 border border-border rounded-md text-text-primary placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-surface-alt  "
+            className="w-full px-3 py-2 border border-border rounded-md bg-transparent text-text-primary placeholder:text-text-faint transition-colors hover:border-squirrel-300 focus:border-squirrel-400 focus:ring-1 focus:ring-squirrel-400 focus:outline-none  "
             placeholder="Short description of this context"
           />
         </div>

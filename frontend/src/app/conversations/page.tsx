@@ -106,7 +106,7 @@ export default function ConversationsPage() {
               id="person-select"
               value={selectedPersonId}
               onChange={(e) => setSelectedPersonId(e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-md text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-surface-alt  "
+              className="w-full px-3 py-2 border border-border rounded-md bg-transparent text-sm text-text-primary transition-colors hover:border-squirrel-300 focus:border-squirrel-400 focus:ring-1 focus:ring-squirrel-400 focus:outline-none  "
             >
               <option value="">No person</option>
               {people.map((person) => (
