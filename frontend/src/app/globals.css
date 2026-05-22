@@ -110,6 +110,10 @@ body {
   font-family: var(--font-sans);
 }
 
+button, [role="button"], a, select, summary {
+  cursor: pointer;
+}
+
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
