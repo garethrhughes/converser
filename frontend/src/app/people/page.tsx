@@ -96,12 +96,12 @@ export default function PeoplePage() {
           {people.map((person) => (
             <div
               key={person.id}
-              className="border border-border rounded-lg p-4 "
+              className="rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md "
             >
               <div className="flex items-start justify-between">
                 <Link
                   href={`/people/${person.id}`}
-                  className="flex-1 hover:opacity-80 transition-opacity"
+                  className="flex-1"
                 >
                   <h2 className="font-medium text-text-primary">
                     {person.name}

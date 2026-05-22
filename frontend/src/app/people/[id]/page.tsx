@@ -169,7 +169,7 @@ export default function EditPersonPage() {
             {memories.map((memory) => (
               <div
                 key={memory.id}
-                className="flex items-start gap-2 border border-border rounded-lg p-3 "
+                className="flex items-start gap-2 rounded-xl border border-border bg-surface p-3 shadow-sm "
               >
                 {editingId === memory.id ? (
                   <div className="flex-1 flex gap-2">

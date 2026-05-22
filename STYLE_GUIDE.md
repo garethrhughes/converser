@@ -19,7 +19,7 @@
 9. [Animation & Transitions](#animation--transitions)
 10. [Icons](#icons)
 11. [Dark Mode](#dark-mode)
-12. [Accessibility](#accessibility)
+12. [Accessibility & WCAG Compliance](#accessibility--wcag-compliance)
 13. [Starter globals.css](#starter-globalscss)
 
 ---
@@ -153,6 +153,37 @@ For charts, use this deterministic 8-color sequence:
 #ec4899  (pink-500)     -- supplementary
 #84cc16  (lime-500)     -- supplementary
 ```
+
+### Token Contrast Rules
+
+Tokens are defined generically. Not every token pair produces adequate visual contrast when combined. **Always evaluate the actual hex values against the specific background a component sits on.**
+
+#### Known Low-Contrast Pairings (avoid these combinations)
+
+| Foreground/Hover | Background | Problem |
+|-----------------|------------|---------|
+| `surface-hover` (`#f1f5f9`) | `surface-brand` (`#eff6ff`) | Nearly invisible -- both are pale near-whites |
+| `surface-hover` (`#f1f5f9`) | `surface-alt` (`#f8fafc`) | Minimal distinction |
+| `border-light` (`#f1f5f9`) | `surface` (`#ffffff`) | Very subtle, may not register |
+| `text-faint` (`#94a3b8`) | `surface-brand` (`#eff6ff`) | Marginal for small text |
+
+#### Minimum Contrast Step Rule
+
+When a hover/active state needs to be **perceptible**, use a token that is at least **2 steps** on the scale from the resting background:
+
+| Resting Background | Minimum Hover/Active | Reasoning |
+|-------------------|---------------------|-----------|
+| `surface` (`#ffffff`) | `surface-hover` (`#f1f5f9`) | 1 step is enough on pure white |
+| `surface-alt` (`#f8fafc`) | `surface-raised` (`#e2e8f0`) | Skip `surface-hover`, it's too close |
+| `surface-brand` (`#eff6ff`) | `surface-raised` (`#e2e8f0`) | Skip `surface-hover`, it's too close |
+| `surface-hover` (`#f1f5f9`) | `surface-raised` (`#e2e8f0`) | Next visible step |
+
+#### Application Rules
+
+1. **Evaluate token pairs, not tokens in isolation.** Before assigning a hover/text token, determine the parent background and verify the contrast between the resolved hex values.
+2. **Never batch-replace color tokens globally.** Color is contextual -- the same token may work on one surface and fail on another. Apply per-component with awareness of nesting.
+3. **Flag ambiguous pairings.** If a background and foreground/hover token are within ~20-30 HSL lightness points of each other, present the specific values for review rather than silently applying them.
+4. **When in doubt, step darker.** If you're unsure whether a hover state will be visible, use the next-darker surface token. It's better to be slightly heavy-handed than invisible.
 
 ---
 
@@ -569,17 +600,180 @@ Components use semantic tokens (`bg-surface`, `text-text-primary`) so they autom
 
 ---
 
-## Accessibility
+## Accessibility & WCAG Compliance
 
-### Conventions (from existing projects)
+### Target: WCAG 2.1 AA
 
-- Focus ring: `focus:border-squirrel-400 focus:ring-1 focus:ring-squirrel-400`
-- Disabled state: `disabled:opacity-50` or `disabled:opacity-40`
-- Keyboard navigation: Custom `useEscapeKey` hook for modals
+All new projects must meet **WCAG 2.1 Level AA** as a minimum. Key requirements:
+
+### Text Contrast (WCAG 1.4.3 / 1.4.6)
+
+| Requirement | Minimum Ratio | Applies To |
+|-------------|---------------|------------|
+| **Normal text** (< 18px, or < 14px bold) | **4.5:1** | Body copy, labels, descriptions, nav links |
+| **Large text** (>= 18px, or >= 14px bold) | **3:1** | Headings, hero text, large metrics |
+| **Enhanced (AAA)** | **7:1** | Target for primary body text where possible |
+
+#### Token Contrast Verification (Light Theme)
+
+| Token | Hex | On `#ffffff` | On `#eff6ff` | On `#f8fafc` |
+|-------|-----|-------------|-------------|-------------|
+| `text-primary` | `#1e293b` | 12.6:1 | 11.4:1 | 12.0:1 |
+| `text-secondary` | `#334155` | 9.2:1 | 8.4:1 | 8.8:1 |
+| `text-tertiary` | `#475569` | 6.4:1 | 5.8:1 | 6.1:1 |
+| `text-muted` | `#64748b` | 4.5:1 | 4.1:1 | 4.3:1 |
+| `text-faint` | `#94a3b8` | 2.7:1 | 2.5:1 | 2.6:1 |
+
+**Rules:**
+- `text-faint` **fails** AA for text at any size. Use only for decorative/supplementary content that is not essential (e.g., watermarks, disabled placeholders). Never use for actionable labels.
+- `text-muted` passes AA for normal text on `surface` (`#ffffff`) but **fails on `surface-brand`** (`#eff6ff`). On tinted backgrounds, use `text-tertiary` or darker.
+- When placing text on `surface-brand` or `surface-alt`, default to `text-tertiary` (`#475569`) as the lightest acceptable body text color.
+
+### Non-Text Contrast (WCAG 1.4.11)
+
+UI components and graphical objects that convey meaning must have at least **3:1** contrast against adjacent colors.
+
+This applies to:
+- Icon-only buttons
+- Form input borders
+- Focus indicators
+- Chart elements (bars, lines, points)
+- Custom checkboxes/toggles
+- Active/inactive state indicators
+
+#### Icon Contrast Rules
+
+| Context | Minimum Color | Avoid |
+|---------|--------------|-------|
+| Icon on `surface` (`#fff`) | `text-muted` (`#64748b`) -- 4.5:1 | `text-faint` (2.7:1, fails) |
+| Icon on `surface-brand` (`#eff6ff`) | `text-tertiary` (`#475569`) -- 5.8:1 | `text-muted` (4.1:1, marginal) |
+| Icon on `surface-alt` (`#f8fafc`) | `text-muted` (`#64748b`) -- 4.3:1 | `text-faint` (2.6:1, fails) |
+| Icon on dark `surface` (`#282c34`) | `text-secondary` (`#9da5b4`) -- 4.8:1 | `text-muted` (2.8:1, fails) |
+
+**Rules for icons:**
+- Standalone icons (no visible text label) that serve as interactive controls must meet **4.5:1** (treat as equivalent to text).
+- Decorative icons adjacent to a text label can be lighter (3:1 minimum) since the label carries the meaning.
+- Never rely solely on `text-faint` icons for interactive affordances.
+
+### Hover & Interactive State Contrast
+
+Hover/focus/active states must produce a **visible change** that meets non-text contrast requirements.
+
+#### Hover Background Minimum Contrast (3:1 vs resting state)
+
+| Resting Background | Hover Background | Contrast | Verdict |
+|-------------------|-----------------|----------|---------|
+| `surface` (`#ffffff`) | `surface-hover` (`#f1f5f9`) | 1.06:1 | Fails alone -- pair with text/border color change |
+| `surface-brand` (`#eff6ff`) | `surface-hover` (`#f1f5f9`) | 1.02:1 | **Fails** -- use `surface-raised` or add border |
+| `surface-brand` (`#eff6ff`) | `surface-raised` (`#e2e8f0`) | 1.15:1 | Still low -- combine with border or text shift |
+| `surface` (`#ffffff`) | `surface-active` (`#dbeafe`) | 1.13:1 | Low -- acceptable only with additional indicator |
+
+**Key insight:** Background-only hover states on pale surfaces rarely meet 3:1 in isolation. Combine multiple signals:
+
+```tsx
+/* Good: hover uses background + border + text color shift */
+<button className="rounded-md border border-transparent bg-surface-brand
+                   text-text-tertiary transition-colors
+                   hover:border-squirrel-300 hover:bg-surface-raised
+                   hover:text-text-primary">
+
+/* Good: hover uses underline + color shift (no background needed) */
+<a className="text-text-secondary transition-colors
+              hover:text-primary hover:underline">
+
+/* Bad: background-only hover on tinted surface */
+<button className="bg-surface-brand hover:bg-surface-hover">
+  {/* Invisible change */}
+</button>
+```
+
+#### Acceptable Hover Patterns (ranked by strength)
+
+1. **Color shift + border** -- strongest signal, works on any surface
+2. **Underline + color shift** -- good for inline links and text buttons
+3. **Shadow elevation** -- `shadow-sm` -> `shadow-md` provides depth cue
+4. **Background darkening by 2+ steps** -- e.g., `surface` -> `surface-raised`
+5. **Scale transform** -- `hover:scale-105` for image/card hover (supplement, not sole indicator)
+
+Never rely on background shift alone when the resting and hover backgrounds are both in the 95-100% lightness range.
+
+### Focus Indicators (WCAG 2.4.7 / 2.4.11)
+
+Focus must be **clearly visible** with at least 3:1 contrast against adjacent colors.
+
+```tsx
+/* Standard focus ring */
+className="focus:border-squirrel-400 focus:ring-1 focus:ring-squirrel-400
+           focus:outline-none"
+
+/* Focus-visible (keyboard only, no mouse) */
+className="focus-visible:ring-2 focus-visible:ring-squirrel-500
+           focus-visible:ring-offset-2 focus-visible:outline-none"
+```
+
+- `squirrel-400` (`#60a5fa`) on `surface` (`#ffffff`) = 2.9:1 -- borderline. Use `ring-2` (2px) to compensate with area.
+- `squirrel-500` (`#3b82f6`) on `surface` (`#ffffff`) = 3.9:1 -- passes 3:1.
+- Prefer `focus-visible` over `focus` to avoid showing rings on mouse click.
+
+### Touch Targets (WCAG 2.5.8)
+
+Minimum interactive target size: **24x24px** (AA), target **44x44px** (AAA / mobile).
+
+| Element | Minimum Size | Implementation |
+|---------|-------------|----------------|
+| Icon-only buttons | `h-8 w-8` (32px) min, `h-10 w-10` (40px) preferred | Padding around icon |
+| Nav items | `py-2.5 px-3` minimum | Ensures 40px+ hit area |
+| Mobile list items | `min-h-[44px]` | Explicit minimum height |
+| Close/dismiss buttons | `h-8 w-8` (32px) with `p-1.5` | Clickable area > icon size |
+
+### Color Independence (WCAG 1.4.1)
+
+Never use color as the **sole** means of conveying information:
+
+- Status badges: include text label, not just colored dot
+- Form errors: show error text + icon, not just red border
+- Charts: use shape/pattern in addition to color; ensure legend text
+- Links in body text: underline or other non-color differentiator
+
+### Keyboard & Interaction
+
 - Focus trapping: `focus-trap-react` for modals/dialogs
-- ARIA: Proper `role`, `aria-label`, `aria-expanded` on interactive elements
-- Skip links: Hidden skip-to-content link
-- Reduced motion: Respect `prefers-reduced-motion`
+- Escape to close: Custom `useEscapeKey` hook for modals
+- Skip links: Hidden skip-to-content link (`sr-only focus:not-sr-only`)
+- Tab order: Logical, follows visual layout
+- ARIA: Proper `role`, `aria-label`, `aria-expanded`, `aria-controls` on interactive elements
+
+### Reduced Motion
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+### Disabled States
+
+- Visual: `disabled:opacity-50` (meets non-text contrast since it signals non-interactivity)
+- Interaction: `disabled:pointer-events-none` or `disabled:cursor-not-allowed`
+- ARIA: `aria-disabled="true"` when using non-button elements
+
+### WCAG Checklist for New Components
+
+Before shipping any new component, verify:
+
+- [ ] Text meets 4.5:1 (normal) or 3:1 (large) against its actual background
+- [ ] Icons meet 3:1 against their background (4.5:1 if icon-only interactive)
+- [ ] Hover state is perceptible via multiple signals (not background-only on pale surfaces)
+- [ ] Focus indicator is visible at 3:1 contrast, uses `focus-visible`
+- [ ] Touch target is at least 32px (ideally 44px on mobile)
+- [ ] Information is not conveyed by color alone
+- [ ] Component is keyboard-operable with logical tab order
+- [ ] Reduced motion is respected for any animation
+- [ ] Appropriate ARIA attributes are present
 
 ### Z-Index Scale
 

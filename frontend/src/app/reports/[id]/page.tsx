@@ -104,7 +104,7 @@ export default function ReportDetailPage() {
         </button>
       </div>
 
-      <div className="border border-border rounded-lg p-6 ">
+      <div className="rounded-xl border border-border bg-surface p-6 shadow-sm ">
         <div className="prose prose-zinc dark:prose-invert max-w-none">
           <Markdown remarkPlugins={[remarkGfm]}>{report.content}</Markdown>
         </div>
@@ -116,7 +116,7 @@ export default function ReportDetailPage() {
         report.memoryChanges.updated.length > 0 ||
         report.memoryChanges.removed.length > 0
       ) && (
-        <div className="mt-6 border border-border rounded-lg p-6 ">
+        <div className="mt-6 rounded-xl border border-border bg-surface p-6 shadow-sm ">
           <h2 className="text-sm font-semibold text-text-primary mb-4">
             Memory Changes
           </h2>

@@ -117,12 +117,12 @@ export default function ReportsPage() {
           {filteredReports.map((report) => (
             <div
               key={report.id}
-              className="border border-border rounded-lg p-4 "
+              className="rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md "
             >
               <div className="flex items-start justify-between">
                 <Link
                   href={`/reports/${report.id}`}
-                  className="flex-1 hover:opacity-80 transition-opacity"
+                  className="flex-1"
                 >
                   <h2 className="font-medium text-text-primary">
                     {report.title}

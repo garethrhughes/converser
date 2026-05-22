@@ -33,7 +33,7 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 h-full w-60 bg-surface-brand flex flex-col border-r border-border">
       <Link
         href="/"
-        className="flex items-center gap-2 px-5 py-5 border-b border-border transition-colors hover:bg-surface-hover"
+        className="flex items-center gap-2 px-5 py-5 border-b border-border transition-colors hover:bg-surface-raised"
       >
         <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-fg font-bold text-sm">
           C
@@ -58,7 +58,7 @@ export function Sidebar() {
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-interactive-selected-bg text-interactive-selected-fg border border-interactive-selected-border'
-                      : 'text-text-tertiary hover:bg-surface-raised hover:text-text-primary'
+                      : 'text-text-tertiary hover:bg-surface-raised hover:text-text-primary hover:border-squirrel-300 border border-transparent'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -73,7 +73,7 @@ export function Sidebar() {
       <div className="px-3 py-4 border-t border-border">
         <Link
           href="/logout"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-tertiary hover:bg-surface-raised hover:text-text-primary transition-colors"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-tertiary border border-transparent transition-colors hover:bg-surface-raised hover:text-text-primary hover:border-squirrel-300"
         >
           <LogOut className="h-5 w-5" />
           Logout

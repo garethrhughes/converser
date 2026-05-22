@@ -253,7 +253,7 @@ export function AnalysisWorkflow() {
                 <button
                   key={person.id}
                   onClick={() => handleSelectPerson(person)}
-                  className="text-left border border-border rounded-lg p-4 hover:shadow-md transition-all "
+                  className="text-left rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md "
                 >
                   <p className="font-medium text-text-primary">{person.name}</p>
                   {person.description && (
@@ -284,7 +284,7 @@ export function AnalysisWorkflow() {
                 <button
                   key={conv.id}
                   onClick={() => handleSelectConversation(conv)}
-                  className="text-left border border-border rounded-lg p-4 hover:shadow-md transition-all "
+                  className="text-left rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md "
                 >
                   <p className="font-medium text-text-primary">{conv.title}</p>
                   <p className="text-xs text-text-muted mt-1">
@@ -308,7 +308,7 @@ export function AnalysisWorkflow() {
               <button
                 key={section.id}
                 onClick={() => handleSelectSection(section)}
-                className="text-left border border-border rounded-lg p-4 hover:shadow-md transition-all "
+                className="text-left rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md "
               >
                 <p className="font-medium text-text-primary">{section.title}</p>
                 <p className="text-xs text-text-muted mt-1">
@@ -401,7 +401,7 @@ export function AnalysisWorkflow() {
                 <button
                   key={agent.id}
                   onClick={() => handleSelectAgent(agent)}
-                  className="text-left border border-border rounded-lg p-4 hover:shadow-md transition-all "
+                  className="text-left rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md "
                 >
                   <p className="font-medium text-text-primary">{agent.name}</p>
                   {agent.description && (
@@ -427,7 +427,7 @@ export function AnalysisWorkflow() {
           subtitle="Review your selections before generating the report"
           onBack={handleBack}
         >
-          <div className="border border-border rounded-lg p-4 mb-6 ">
+          <div className="rounded-xl border border-border bg-surface p-4 shadow-sm mb-6 ">
             <dl className="space-y-3">
               <div>
                 <dt className="text-xs font-medium text-text-muted uppercase">Person</dt>
@@ -468,7 +468,7 @@ export function AnalysisWorkflow() {
 
       {step === 'result' && report && (
         <StepContainer title={report.title} subtitle="Report generated successfully">
-          <div className="border border-border rounded-lg p-6 mb-6 ">
+          <div className="rounded-xl border border-border bg-surface p-6 shadow-sm mb-6 ">
             <div className="prose prose-zinc dark:prose-invert max-w-none">
               <Markdown remarkPlugins={[remarkGfm]}>{report.content}</Markdown>
             </div>
