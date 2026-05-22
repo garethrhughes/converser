@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Markdown from 'react-markdown';
 import { api } from '@/lib/api';
 import type {
   Person,
@@ -467,8 +468,8 @@ export function AnalysisWorkflow() {
       {step === 'result' && report && (
         <StepContainer title={report.title} subtitle="Report generated successfully">
           <div className="border border-zinc-200 rounded-lg p-6 mb-6 dark:border-zinc-700">
-            <div className="prose prose-zinc dark:prose-invert max-w-none whitespace-pre-wrap text-sm font-mono">
-              {report.content}
+            <div className="prose prose-zinc dark:prose-invert max-w-none">
+              <Markdown>{report.content}</Markdown>
             </div>
           </div>
           <button

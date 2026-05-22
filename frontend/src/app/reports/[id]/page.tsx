@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Markdown from 'react-markdown';
 import { api } from '@/lib/api';
 import type { Report } from '@/types';
 
@@ -103,8 +104,8 @@ export default function ReportDetailPage() {
       </div>
 
       <div className="border border-zinc-200 rounded-lg p-6 dark:border-zinc-700">
-        <div className="prose prose-zinc dark:prose-invert max-w-none whitespace-pre-wrap text-sm font-mono">
-          {report.content}
+        <div className="prose prose-zinc dark:prose-invert max-w-none">
+          <Markdown>{report.content}</Markdown>
         </div>
       </div>
     </div>
