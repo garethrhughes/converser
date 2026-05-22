@@ -1,27 +1,134 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+@theme inline {
+  /* Brand scale */
+  --color-squirrel-50: #eff6ff;
+  --color-squirrel-100: #dbeafe;
+  --color-squirrel-200: #bfdbfe;
+  --color-squirrel-300: #93c5fd;
+  --color-squirrel-400: #60a5fa;
+  --color-squirrel-500: #3b82f6;
+  --color-squirrel-600: #2563eb;
+  --color-squirrel-700: #1d4ed8;
+  --color-squirrel-800: #1e40af;
+  --color-squirrel-900: #1e3a8a;
+
+  /* Semantic surfaces */
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-surface-brand: var(--surface-brand);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-active: var(--surface-active);
+
+  /* Semantic borders */
+  --color-border: var(--border-color);
+  --color-border-light: var(--border-light);
+
+  /* Semantic text */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+
+  /* Primary action */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+
+  /* Interactive states */
+  --color-interactive-selected-bg: var(--interactive-selected-bg);
+  --color-interactive-selected-fg: var(--interactive-selected-fg);
+  --color-interactive-selected-border: var(--interactive-selected-border);
+  --color-interactive-hover-bg: var(--interactive-hover-bg);
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+/* ─── Light Theme (default) ─── */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1e293b;
+  --surface: #ffffff;
+  --surface-alt: #f8fafc;
+  --surface-brand: #eff6ff;
+  --surface-hover: #f1f5f9;
+  --surface-raised: #e2e8f0;
+  --surface-active: #dbeafe;
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+  --text-primary: #1e293b;
+  --text-secondary: #334155;
+  --text-tertiary: #475569;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-fg: #ffffff;
+  --interactive-selected-bg: #dbeafe;
+  --interactive-selected-fg: #1d4ed8;
+  --interactive-selected-border: #60a5fa;
+  --interactive-hover-bg: #f1f5f9;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Dark Theme (One Monokai inspired) ─── */
+.dark {
+  --background: #282c34;
+  --foreground: #abb2bf;
+  --surface: #282c34;
+  --surface-alt: #21252b;
+  --surface-brand: #2c313a;
+  --surface-hover: #2c313a;
+  --surface-raised: #3e4451;
+  --surface-active: #3e4451;
+  --border-color: #3e4451;
+  --border-light: #2c313a;
+  --text-primary: #abb2bf;
+  --text-secondary: #9da5b4;
+  --text-tertiary: #7f8799;
+  --text-muted: #636d83;
+  --text-faint: #5c6370;
+  --primary: #528bff;
+  --primary-hover: #4070e0;
+  --primary-fg: #ffffff;
+  --interactive-selected-bg: #3e4451;
+  --interactive-selected-fg: #61afef;
+  --interactive-selected-border: #528bff;
+  --interactive-hover-bg: #2c313a;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ─── Base styles ─── */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-raised); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* ─── Animations ─── */
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dropdown-enter { animation: dropdown-in 0.16s ease-out both; }
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.backdrop-enter { animation: backdrop-in 0.15s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-enter, .backdrop-enter { animation: none; }
 }

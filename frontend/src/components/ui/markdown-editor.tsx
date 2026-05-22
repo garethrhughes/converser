@@ -98,7 +98,7 @@ export function MarkdownEditor({ value, onChange, placeholder }: MarkdownEditorP
       <div
         ref={containerRef}
         style={{ height: `${height}px` }}
-        className="w-full max-w-full border border-zinc-300 rounded-lg overflow-hidden dark:border-zinc-700"
+        className="w-full max-w-full border border-border rounded-lg overflow-hidden "
       />
     </div>
   );

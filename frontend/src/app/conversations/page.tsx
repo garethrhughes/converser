@@ -77,7 +77,7 @@ export default function ConversationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-zinc-500">Loading conversations...</p>
+        <p className="text-text-muted">Loading conversations...</p>
       </div>
     );
   }
@@ -85,28 +85,28 @@ export default function ConversationsPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Conversations</h1>
+        <h1 className="text-2xl font-semibold text-text-primary">Conversations</h1>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
           {error}
         </div>
       )}
 
       {/* Import section */}
-      <div className="mb-8 p-5 border border-zinc-200 rounded-lg bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700">
-        <h2 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">Import from Google Drive</h2>
+      <div className="mb-8 p-5 border border-border rounded-lg bg-surface-alt ">
+        <h2 className="text-sm font-medium text-text-secondary mb-3">Import from Google Drive</h2>
         <div className="flex items-end gap-4">
           <div className="flex-1 max-w-xs">
-            <label htmlFor="person-select" className="block text-xs text-zinc-500 dark:text-zinc-400 mb-1">
+            <label htmlFor="person-select" className="block text-xs text-text-muted mb-1">
               Link to person (optional)
             </label>
             <select
               id="person-select"
               value={selectedPersonId}
               onChange={(e) => setSelectedPersonId(e.target.value)}
-              className="w-full px-3 py-2 border border-zinc-300 rounded-md text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+              className="w-full px-3 py-2 border border-border rounded-md text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-surface-alt  "
             >
               <option value="">No person</option>
               {people.map((person) => (
@@ -119,7 +119,7 @@ export default function ConversationsPage() {
           <button
             onClick={() => setShowPicker(true)}
             disabled={importing}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {importing ? 'Importing...' : 'Import'}
           </button>
@@ -141,7 +141,7 @@ export default function ConversationsPage() {
       )}
 
       {conversations.length === 0 ? (
-        <p className="text-zinc-500 dark:text-zinc-400">
+        <p className="text-text-muted">
           No conversations yet. Import your first conversation from Google Drive.
         </p>
       ) : (
@@ -149,33 +149,33 @@ export default function ConversationsPage() {
           {conversations.map((conversation) => (
             <div
               key={conversation.id}
-              className="border border-zinc-200 rounded-lg p-4 dark:border-zinc-700"
+              className="border border-border rounded-lg p-4 "
             >
               <div className="flex items-start justify-between">
                 <Link
                   href={`/conversations/${conversation.id}`}
                   className="flex-1 hover:opacity-80 transition-opacity"
                 >
-                  <h2 className="font-medium text-zinc-900 dark:text-zinc-100">
+                  <h2 className="font-medium text-text-primary">
                     {conversation.title}
                   </h2>
                   <div className="flex items-center gap-3 mt-1">
                     {conversation.person && (
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                      <span className="text-xs text-text-muted">
                         {conversation.person.name}
                       </span>
                     )}
-                    <span className="text-xs bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded dark:bg-zinc-800 dark:text-zinc-400">
+                    <span className="text-xs bg-surface-alt text-text-secondary px-2 py-0.5 rounded bg-surface-alt ">
                       {conversation.sourceType}
                     </span>
-                    <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                    <span className="text-xs text-text-faint">
                       Imported {new Date(conversation.importedAt).toLocaleDateString()}
                     </span>
                   </div>
                 </Link>
                 <button
                   onClick={(e) => handleDelete(conversation.id, e)}
-                  className="ml-4 p-1 text-zinc-400 hover:text-red-500 transition-colors"
+                  className="ml-4 p-1 text-text-faint hover:text-red-500 transition-colors"
                   aria-label="Delete conversation"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

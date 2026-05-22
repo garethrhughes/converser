@@ -9,7 +9,7 @@ export default function LoginPage() {
       <p className="text-gray-600">Sign in to continue</p>
       <button
         onClick={redirectToLogin}
-        className="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
+        className="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary-hover"
       >
         Sign in with Google
       </button>

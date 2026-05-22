@@ -152,7 +152,13 @@ This project follows:
   (language conventions, framework rules, ORM, logger, test runner).
 
 **Project-specific additions / overrides:**
-_(none)_
+- All frontend components must follow the design system in [`STYLE_GUIDE.md`](./STYLE_GUIDE.md)
+- Use semantic color tokens (`bg-surface`, `text-text-primary`, `border-border`) — never raw hex values or Tailwind's default palette (no `zinc-*`, `gray-*`, etc.)
+- Icons: `lucide-react` only — no inline SVGs
+- Dark mode: class-based (`.dark` on `<html>`), One Monokai inspired palette
+- Border radius: `rounded-xl` for cards, `rounded-md`/`rounded-lg` for buttons/inputs, `rounded-full` for badges
+- Shadows: `shadow-sm` at rest, `shadow-md` on hover with `transition-shadow`
+- Cards use the pattern: `rounded-xl border border-border bg-surface p-4 shadow-sm`
 
 ---
 

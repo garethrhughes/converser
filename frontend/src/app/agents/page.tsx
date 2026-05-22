@@ -49,7 +49,7 @@ export default function AgentsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-zinc-500">Loading agents...</p>
+        <p className="text-text-muted">Loading agents...</p>
       </div>
     );
   }
@@ -57,25 +57,25 @@ export default function AgentsPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Agents</h1>
+        <h1 className="text-2xl font-semibold text-text-primary">Agents</h1>
         <Link
           href="/agents/new"
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-hover transition-colors"
         >
           New Agent
         </Link>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
           {error}
         </div>
       )}
 
       {agents.length === 0 ? (
-        <p className="text-zinc-500 dark:text-zinc-400">
+        <p className="text-text-muted">
           No agents yet.{' '}
-          <Link href="/agents/new" className="text-blue-600 hover:underline">
+          <Link href="/agents/new" className="text-primary hover:underline">
             Create your first agent
           </Link>
           .
@@ -85,28 +85,28 @@ export default function AgentsPage() {
           {agents.map((agent) => (
             <div
               key={agent.id}
-              className="border border-zinc-200 rounded-lg p-4 dark:border-zinc-700"
+              className="border border-border rounded-lg p-4 "
             >
               <div className="flex items-start justify-between">
                 <Link
                   href={`/agents/${agent.id}`}
                   className="flex-1 hover:opacity-80 transition-opacity"
                 >
-                  <h2 className="font-medium text-zinc-900 dark:text-zinc-100">
+                  <h2 className="font-medium text-text-primary">
                     {agent.name}
                   </h2>
                   {agent.description && (
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 line-clamp-2">
+                    <p className="text-sm text-text-secondary mt-1 line-clamp-2">
                       {agent.description}
                     </p>
                   )}
-                  <span className="text-xs text-zinc-400 dark:text-zinc-500 mt-2 inline-block">
+                  <span className="text-xs text-text-faint mt-2 inline-block">
                     Created {new Date(agent.createdAt).toLocaleDateString()}
                   </span>
                 </Link>
                 <button
                   onClick={(e) => handleDelete(agent.id, e)}
-                  className="ml-4 p-1 text-zinc-400 hover:text-red-500 transition-colors"
+                  className="ml-4 p-1 text-text-faint hover:text-red-500 transition-colors"
                   aria-label="Delete agent"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

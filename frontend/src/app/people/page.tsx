@@ -60,7 +60,7 @@ export default function PeoplePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-zinc-500">Loading people...</p>
+        <p className="text-text-muted">Loading people...</p>
       </div>
     );
   }
@@ -68,25 +68,25 @@ export default function PeoplePage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">People</h1>
+        <h1 className="text-2xl font-semibold text-text-primary">People</h1>
         <Link
           href="/people/new"
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+          className="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-hover transition-colors"
         >
           New Person
         </Link>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
           {error}
         </div>
       )}
 
       {people.length === 0 ? (
-        <p className="text-zinc-500 dark:text-zinc-400">
+        <p className="text-text-muted">
           No people yet.{' '}
-          <Link href="/people/new" className="text-blue-600 hover:underline">
+          <Link href="/people/new" className="text-primary hover:underline">
             Add your first person
           </Link>
           .
@@ -96,35 +96,35 @@ export default function PeoplePage() {
           {people.map((person) => (
             <div
               key={person.id}
-              className="border border-zinc-200 rounded-lg p-4 dark:border-zinc-700"
+              className="border border-border rounded-lg p-4 "
             >
               <div className="flex items-start justify-between">
                 <Link
                   href={`/people/${person.id}`}
                   className="flex-1 hover:opacity-80 transition-opacity"
                 >
-                  <h2 className="font-medium text-zinc-900 dark:text-zinc-100">
+                  <h2 className="font-medium text-text-primary">
                     {person.name}
                   </h2>
                   {person.description && (
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 line-clamp-2">
+                    <p className="text-sm text-text-secondary mt-1 line-clamp-2">
                       {person.description}
                     </p>
                   )}
                   <div className="flex items-center gap-3 mt-2">
                     {person.memoryCount > 0 && (
-                      <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded dark:bg-blue-950 dark:text-blue-400">
+                      <span className="text-xs bg-blue-50 text-primary px-2 py-0.5 rounded">
                         {person.memoryCount} {person.memoryCount === 1 ? 'memory' : 'memories'}
                       </span>
                     )}
-                    <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                    <span className="text-xs text-text-faint">
                       Created {new Date(person.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                 </Link>
                 <button
                   onClick={(e) => handleDelete(person.id, e)}
-                  className="ml-4 p-1 text-zinc-400 hover:text-red-500 transition-colors"
+                  className="ml-4 p-1 text-text-faint hover:text-red-500 transition-colors"
                   aria-label="Delete person"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

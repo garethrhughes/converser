@@ -27,19 +27,19 @@ export default function NewPersonPage() {
 
   return (
     <div className="px-10 py-10">
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-8">
+      <h1 className="text-2xl font-semibold text-text-primary mb-8">
         New Person
       </h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">
             Name
           </label>
           <input
@@ -48,13 +48,13 @@ export default function NewPersonPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-zinc-300 rounded-md text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+            className="w-full px-3 py-2 border border-border rounded-md text-text-primary placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-surface-alt  "
             placeholder="Person name"
           />
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          <label htmlFor="description" className="block text-sm font-medium text-text-secondary mb-1">
             Description
           </label>
           <textarea
@@ -62,7 +62,7 @@ export default function NewPersonPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 border border-zinc-300 rounded-md text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+            className="w-full px-3 py-2 border border-border rounded-md text-text-primary placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-surface-alt  "
             placeholder="Description or notes about this person"
           />
         </div>
@@ -71,14 +71,14 @@ export default function NewPersonPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-5 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {submitting ? 'Creating...' : 'Create Person'}
           </button>
           <button
             type="button"
             onClick={() => router.push('/people')}
-            className="px-5 py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+            className="px-5 py-2 text-sm font-medium text-text-tertiary hover:text-text-primary dark:text-zinc-300 dark:hover:text-text-primary"
           >
             Cancel
           </button>

@@ -86,26 +86,26 @@ export default function EditPersonPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-zinc-500">Loading person...</p>
+        <p className="text-text-muted">Loading person...</p>
       </div>
     );
   }
 
   return (
     <div className="px-10 py-10">
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-8">
+      <h1 className="text-2xl font-semibold text-text-primary mb-8">
         Edit Person
       </h1>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">
             Name
           </label>
           <input
@@ -114,13 +114,13 @@ export default function EditPersonPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-zinc-300 rounded-md text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+            className="w-full px-3 py-2 border border-border rounded-md text-text-primary placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-surface-alt  "
             placeholder="Person name"
           />
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          <label htmlFor="description" className="block text-sm font-medium text-text-secondary mb-1">
             Description
           </label>
           <textarea
@@ -128,7 +128,7 @@ export default function EditPersonPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 border border-zinc-300 rounded-md text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+            className="w-full px-3 py-2 border border-border rounded-md text-text-primary placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-surface-alt  "
             placeholder="Description or notes about this person"
           />
         </div>
@@ -137,14 +137,14 @@ export default function EditPersonPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-5 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {submitting ? 'Saving...' : 'Save Changes'}
           </button>
           <button
             type="button"
             onClick={() => router.push('/people')}
-            className="px-5 py-2 text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+            className="px-5 py-2 text-sm font-medium text-text-tertiary hover:text-text-primary dark:text-zinc-300 dark:hover:text-text-primary"
           >
             Cancel
           </button>
@@ -153,15 +153,15 @@ export default function EditPersonPage() {
 
       {/* Memory Section */}
       <div className="mt-12 max-w-xl">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+        <h2 className="text-lg font-semibold text-text-primary mb-4">
           Memory
         </h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+        <p className="text-sm text-text-muted mb-4">
           Key facts and themes extracted from reports. Included automatically in future analyses.
         </p>
 
         {memories.length === 0 ? (
-          <p className="text-sm text-zinc-400 dark:text-zinc-500 italic">
+          <p className="text-sm text-text-faint italic">
             No memories yet. Generate a report to start building memory.
           </p>
         ) : (
@@ -169,7 +169,7 @@ export default function EditPersonPage() {
             {memories.map((memory) => (
               <div
                 key={memory.id}
-                className="flex items-start gap-2 border border-zinc-200 rounded-lg p-3 dark:border-zinc-700"
+                className="flex items-start gap-2 border border-border rounded-lg p-3 "
               >
                 {editingId === memory.id ? (
                   <div className="flex-1 flex gap-2">
@@ -181,30 +181,30 @@ export default function EditPersonPage() {
                         if (e.key === 'Enter') handleSaveMemory(memory.id);
                         if (e.key === 'Escape') setEditingId(null);
                       }}
-                      className="flex-1 px-2 py-1 border border-zinc-300 rounded text-sm text-zinc-900 dark:bg-zinc-800 dark:border-zinc-600 dark:text-zinc-100"
+                      className="flex-1 px-2 py-1 border border-border rounded text-sm text-text-primary bg-surface-alt dark:border-zinc-600 "
                       autoFocus
                     />
                     <button
                       onClick={() => handleSaveMemory(memory.id)}
-                      className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                      className="px-2 py-1 text-xs bg-primary text-white rounded hover:bg-primary-hover"
                     >
                       Save
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
-                      className="px-2 py-1 text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      className="px-2 py-1 text-xs text-text-muted hover:text-text-tertiary dark:hover:text-zinc-300"
                     >
                       Cancel
                     </button>
                   </div>
                 ) : (
                   <>
-                    <p className="flex-1 text-sm text-zinc-800 dark:text-zinc-200">
+                    <p className="flex-1 text-sm text-text-primary">
                       {memory.content}
                     </p>
                     <button
                       onClick={() => handleEditMemory(memory)}
-                      className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                      className="p-1 text-text-faint hover:text-text-secondary dark:hover:text-zinc-300"
                       aria-label="Edit memory"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -213,7 +213,7 @@ export default function EditPersonPage() {
                     </button>
                     <button
                       onClick={() => handleDeleteMemory(memory.id)}
-                      className="p-1 text-zinc-400 hover:text-red-500"
+                      className="p-1 text-text-faint hover:text-red-500"
                       aria-label="Delete memory"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

@@ -220,10 +220,10 @@ export function AnalysisWorkflow() {
               <span
                 className={`text-xs font-medium px-2 py-1 rounded ${
                   isActive
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                    ? 'bg-blue-100 text-blue-700'
                     : isPast
-                      ? 'text-zinc-500 dark:text-zinc-400'
-                      : 'text-zinc-400 dark:text-zinc-500'
+                      ? 'text-text-muted'
+                      : 'text-text-faint'
                 }`}
               >
                 {stepLabels[s]}
@@ -235,7 +235,7 @@ export function AnalysisWorkflow() {
 
       {/* Error banner */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm dark:bg-red-950 dark:border-red-800 dark:text-red-300">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
           {error}
         </div>
       )}
@@ -244,7 +244,7 @@ export function AnalysisWorkflow() {
       {step === 'person' && (
         <StepContainer title="Select a Person" subtitle="Who is this analysis about?">
           {people.length === 0 ? (
-            <p className="text-zinc-500 dark:text-zinc-400">
+            <p className="text-text-muted">
               No people found. Create a person first.
             </p>
           ) : (
@@ -253,11 +253,11 @@ export function AnalysisWorkflow() {
                 <button
                   key={person.id}
                   onClick={() => handleSelectPerson(person)}
-                  className="text-left border border-zinc-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm transition-all dark:border-zinc-700 dark:hover:border-blue-600"
+                  className="text-left border border-border rounded-lg p-4 hover:shadow-md transition-all "
                 >
-                  <p className="font-medium text-zinc-900 dark:text-zinc-100">{person.name}</p>
+                  <p className="font-medium text-text-primary">{person.name}</p>
                   {person.description && (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
+                    <p className="text-sm text-text-muted mt-1 line-clamp-2">
                       {person.description}
                     </p>
                   )}
@@ -275,7 +275,7 @@ export function AnalysisWorkflow() {
           onBack={handleBack}
         >
           {conversations.length === 0 ? (
-            <p className="text-zinc-500 dark:text-zinc-400">
+            <p className="text-text-muted">
               No conversations found for this person.
             </p>
           ) : (
@@ -284,10 +284,10 @@ export function AnalysisWorkflow() {
                 <button
                   key={conv.id}
                   onClick={() => handleSelectConversation(conv)}
-                  className="text-left border border-zinc-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm transition-all dark:border-zinc-700 dark:hover:border-blue-600"
+                  className="text-left border border-border rounded-lg p-4 hover:shadow-md transition-all "
                 >
-                  <p className="font-medium text-zinc-900 dark:text-zinc-100">{conv.title}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                  <p className="font-medium text-text-primary">{conv.title}</p>
+                  <p className="text-xs text-text-muted mt-1">
                     Imported {new Date(conv.importedAt).toLocaleDateString()}
                   </p>
                 </button>
@@ -308,10 +308,10 @@ export function AnalysisWorkflow() {
               <button
                 key={section.id}
                 onClick={() => handleSelectSection(section)}
-                className="text-left border border-zinc-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm transition-all dark:border-zinc-700 dark:hover:border-blue-600"
+                className="text-left border border-border rounded-lg p-4 hover:shadow-md transition-all "
               >
-                <p className="font-medium text-zinc-900 dark:text-zinc-100">{section.title}</p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                <p className="font-medium text-text-primary">{section.title}</p>
+                <p className="text-xs text-text-muted mt-1">
                   {section.content.length > 100
                     ? section.content.substring(0, 100) + '...'
                     : section.content}
@@ -329,7 +329,7 @@ export function AnalysisWorkflow() {
           onBack={handleBack}
         >
           {contexts.length === 0 ? (
-            <p className="text-zinc-500 dark:text-zinc-400 mb-4">
+            <p className="text-text-muted mb-4">
               No contexts available. You can proceed without any.
             </p>
           ) : (
@@ -342,8 +342,8 @@ export function AnalysisWorkflow() {
                     onClick={() => toggleContext(ctx)}
                     className={`text-left border rounded-lg p-4 transition-all ${
                       isSelected
-                        ? 'border-blue-400 bg-blue-50 dark:border-blue-600 dark:bg-blue-950'
-                        : 'border-zinc-200 hover:border-blue-300 dark:border-zinc-700 dark:hover:border-blue-600'
+                        ? 'border-blue-400 bg-blue-50 dark:bg-blue-950'
+                        : 'border-border hover:border-blue-300 '
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -351,7 +351,7 @@ export function AnalysisWorkflow() {
                         className={`w-4 h-4 rounded border flex items-center justify-center ${
                           isSelected
                             ? 'bg-blue-500 border-blue-500'
-                            : 'border-zinc-300 dark:border-zinc-600'
+                            : 'border-border'
                         }`}
                       >
                         {isSelected && (
@@ -364,10 +364,10 @@ export function AnalysisWorkflow() {
                           </svg>
                         )}
                       </div>
-                      <p className="font-medium text-zinc-900 dark:text-zinc-100">{ctx.name}</p>
+                      <p className="font-medium text-text-primary">{ctx.name}</p>
                     </div>
                     {ctx.description && (
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 ml-6">
+                      <p className="text-sm text-text-muted mt-1 ml-6">
                         {ctx.description}
                       </p>
                     )}
@@ -378,7 +378,7 @@ export function AnalysisWorkflow() {
           )}
           <button
             onClick={handleContextsConfirm}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
           >
             Continue{selectedContexts.length > 0 ? ` with ${selectedContexts.length} context(s)` : ' without contexts'}
           </button>
@@ -392,7 +392,7 @@ export function AnalysisWorkflow() {
           onBack={handleBack}
         >
           {agents.length === 0 ? (
-            <p className="text-zinc-500 dark:text-zinc-400">
+            <p className="text-text-muted">
               No agents found. Create an agent first.
             </p>
           ) : (
@@ -401,16 +401,16 @@ export function AnalysisWorkflow() {
                 <button
                   key={agent.id}
                   onClick={() => handleSelectAgent(agent)}
-                  className="text-left border border-zinc-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm transition-all dark:border-zinc-700 dark:hover:border-blue-600"
+                  className="text-left border border-border rounded-lg p-4 hover:shadow-md transition-all "
                 >
-                  <p className="font-medium text-zinc-900 dark:text-zinc-100">{agent.name}</p>
+                  <p className="font-medium text-text-primary">{agent.name}</p>
                   {agent.description && (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">
+                    <p className="text-sm text-text-muted mt-1 line-clamp-2">
                       {agent.description}
                     </p>
                   )}
                   {agent.isDefault && (
-                    <span className="inline-block mt-2 text-xs bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded dark:bg-zinc-800 dark:text-zinc-400">
+                    <span className="inline-block mt-2 text-xs bg-surface-alt text-text-secondary px-2 py-0.5 rounded bg-surface-alt ">
                       Default
                     </span>
                   )}
@@ -427,31 +427,31 @@ export function AnalysisWorkflow() {
           subtitle="Review your selections before generating the report"
           onBack={handleBack}
         >
-          <div className="border border-zinc-200 rounded-lg p-4 mb-6 dark:border-zinc-700">
+          <div className="border border-border rounded-lg p-4 mb-6 ">
             <dl className="space-y-3">
               <div>
-                <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Person</dt>
-                <dd className="text-zinc-900 dark:text-zinc-100">{selectedPerson?.name}</dd>
+                <dt className="text-xs font-medium text-text-muted uppercase">Person</dt>
+                <dd className="text-text-primary">{selectedPerson?.name}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Conversation</dt>
-                <dd className="text-zinc-900 dark:text-zinc-100">{selectedConversation?.title}</dd>
+                <dt className="text-xs font-medium text-text-muted uppercase">Conversation</dt>
+                <dd className="text-text-primary">{selectedConversation?.title}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Section</dt>
-                <dd className="text-zinc-900 dark:text-zinc-100">{selectedSection?.title}</dd>
+                <dt className="text-xs font-medium text-text-muted uppercase">Section</dt>
+                <dd className="text-text-primary">{selectedSection?.title}</dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Contexts</dt>
-                <dd className="text-zinc-900 dark:text-zinc-100">
+                <dt className="text-xs font-medium text-text-muted uppercase">Contexts</dt>
+                <dd className="text-text-primary">
                   {selectedContexts.length > 0
                     ? selectedContexts.map((c) => c.name).join(', ')
                     : 'None'}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Agent</dt>
-                <dd className="text-zinc-900 dark:text-zinc-100">{selectedAgent?.name}</dd>
+                <dt className="text-xs font-medium text-text-muted uppercase">Agent</dt>
+                <dd className="text-text-primary">{selectedAgent?.name}</dd>
               </div>
             </dl>
           </div>
@@ -459,7 +459,7 @@ export function AnalysisWorkflow() {
           <button
             onClick={handleGenerate}
             disabled={generating}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {generating ? 'Generating...' : 'Generate Report'}
           </button>
@@ -468,14 +468,14 @@ export function AnalysisWorkflow() {
 
       {step === 'result' && report && (
         <StepContainer title={report.title} subtitle="Report generated successfully">
-          <div className="border border-zinc-200 rounded-lg p-6 mb-6 dark:border-zinc-700">
+          <div className="border border-border rounded-lg p-6 mb-6 ">
             <div className="prose prose-zinc dark:prose-invert max-w-none">
               <Markdown remarkPlugins={[remarkGfm]}>{report.content}</Markdown>
             </div>
           </div>
           <button
             onClick={handleReset}
-            className="px-4 py-2 bg-zinc-200 text-zinc-900 rounded-lg hover:bg-zinc-300 transition-colors dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-600"
+            className="px-4 py-2 bg-zinc-200 text-text-primary rounded-lg hover:bg-zinc-300 transition-colors bg-surface-raised  dark:hover:bg-zinc-600"
           >
             Start New Analysis
           </button>
@@ -502,18 +502,18 @@ function StepContainer({
         {onBack && (
           <button
             onClick={onBack}
-            className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-1 rounded hover:bg-surface-alt dark:hover:bg-zinc-800 transition-colors"
             aria-label="Go back"
           >
-            <svg className="w-5 h-5 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
         )}
         <div>
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{title}</h2>
+          <h2 className="text-xl font-semibold text-text-primary">{title}</h2>
           {subtitle && (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">{subtitle}</p>
+            <p className="text-sm text-text-muted">{subtitle}</p>
           )}
         </div>
       </div>

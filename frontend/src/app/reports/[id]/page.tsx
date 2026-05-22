@@ -42,7 +42,7 @@ export default function ReportDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-zinc-500 dark:text-zinc-400">Loading report...</p>
+        <p className="text-text-muted">Loading report...</p>
       </div>
     );
   }
@@ -50,10 +50,10 @@ export default function ReportDetailPage() {
   if (error || !report) {
     return (
       <div className="max-w-4xl mx-auto py-8 px-6">
-        <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm dark:bg-red-950 dark:border-red-800 dark:text-red-300">
+        <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
           {error || 'Report not found'}
         </div>
-        <Link href="/reports" className="mt-4 inline-block text-blue-600 hover:text-blue-700 text-sm">
+        <Link href="/reports" className="mt-4 inline-block text-primary hover:text-primary-hover text-sm">
           Back to reports
         </Link>
       </div>
@@ -65,29 +65,29 @@ export default function ReportDetailPage() {
       <div className="flex items-center gap-3 mb-6">
         <Link
           href="/reports"
-          className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          className="p-1 rounded hover:bg-surface-alt dark:hover:bg-zinc-800 transition-colors"
           aria-label="Back to reports"
         >
-          <svg className="w-5 h-5 text-zinc-600 dark:text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-5 h-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </Link>
         <div className="flex-1">
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+          <h1 className="text-xl font-semibold text-text-primary">
             {report.title}
           </h1>
           <div className="flex items-center gap-3 mt-1">
             {report.person && (
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              <span className="text-xs text-text-muted">
                 {report.person.name}
               </span>
             )}
             {report.agent && (
-              <span className="text-xs bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded dark:bg-zinc-800 dark:text-zinc-400">
+              <span className="text-xs bg-surface-alt text-text-secondary px-2 py-0.5 rounded bg-surface-alt ">
                 {report.agent.name}
               </span>
             )}
-            <span className="text-xs text-zinc-400 dark:text-zinc-500">
+            <span className="text-xs text-text-faint">
               {new Date(report.createdAt).toLocaleDateString()} at{' '}
               {new Date(report.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
@@ -95,7 +95,7 @@ export default function ReportDetailPage() {
         </div>
         <button
           onClick={handleDelete}
-          className="p-2 text-zinc-400 hover:text-red-500 transition-colors"
+          className="p-2 text-text-faint hover:text-red-500 transition-colors"
           aria-label="Delete report"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -104,7 +104,7 @@ export default function ReportDetailPage() {
         </button>
       </div>
 
-      <div className="border border-zinc-200 rounded-lg p-6 dark:border-zinc-700">
+      <div className="border border-border rounded-lg p-6 ">
         <div className="prose prose-zinc dark:prose-invert max-w-none">
           <Markdown remarkPlugins={[remarkGfm]}>{report.content}</Markdown>
         </div>
@@ -116,8 +116,8 @@ export default function ReportDetailPage() {
         report.memoryChanges.updated.length > 0 ||
         report.memoryChanges.removed.length > 0
       ) && (
-        <div className="mt-6 border border-zinc-200 rounded-lg p-6 dark:border-zinc-700">
-          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+        <div className="mt-6 border border-border rounded-lg p-6 ">
+          <h2 className="text-sm font-semibold text-text-primary mb-4">
             Memory Changes
           </h2>
 
@@ -127,7 +127,7 @@ export default function ReportDetailPage() {
               <div className="flex flex-col gap-1">
                 {report.memoryChanges.added.map((item) => (
                   <div key={item.id} className="border-l-2 border-green-400 pl-3 py-1">
-                    <p className="text-sm text-zinc-800 dark:text-zinc-200">{item.content}</p>
+                    <p className="text-sm text-text-primary">{item.content}</p>
                   </div>
                 ))}
               </div>
@@ -140,8 +140,8 @@ export default function ReportDetailPage() {
               <div className="flex flex-col gap-1">
                 {report.memoryChanges.updated.map((item) => (
                   <div key={item.id} className="border-l-2 border-yellow-400 pl-3 py-1">
-                    <p className="text-sm text-zinc-400 line-through dark:text-zinc-500">{item.previousContent}</p>
-                    <p className="text-sm text-zinc-800 dark:text-zinc-200">{item.content}</p>
+                    <p className="text-sm text-text-faint line-through ">{item.previousContent}</p>
+                    <p className="text-sm text-text-primary">{item.content}</p>
                   </div>
                 ))}
               </div>
@@ -154,7 +154,7 @@ export default function ReportDetailPage() {
               <div className="flex flex-col gap-1">
                 {report.memoryChanges.removed.map((item) => (
                   <div key={item.id} className="border-l-2 border-red-400 pl-3 py-1">
-                    <p className="text-sm text-zinc-400 line-through dark:text-zinc-500">{item.content}</p>
+                    <p className="text-sm text-text-faint line-through ">{item.content}</p>
                   </div>
                 ))}
               </div>

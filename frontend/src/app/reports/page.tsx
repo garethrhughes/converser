@@ -51,7 +51,7 @@ export default function ReportsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-zinc-500 dark:text-zinc-400">Loading reports...</p>
+        <p className="text-text-muted">Loading reports...</p>
       </div>
     );
   }
@@ -59,12 +59,12 @@ export default function ReportsPage() {
   return (
     <div className="max-w-4xl mx-auto py-8 px-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+        <h1 className="text-2xl font-semibold text-text-primary">
           Reports
         </h1>
         <Link
           href="/"
-          className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary-hover transition-colors"
         >
           Generate New Report
         </Link>
@@ -76,7 +76,7 @@ export default function ReportsPage() {
           <select
             value={selectedAgentId}
             onChange={(e) => setSelectedAgentId(e.target.value)}
-            className="px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white text-zinc-900 dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+            className="px-3 py-2 border border-border rounded-lg text-sm bg-white text-text-primary bg-surface-alt  "
           >
             <option value="">All agents</option>
             {agents.map((agent) => (
@@ -89,26 +89,26 @@ export default function ReportsPage() {
       )}
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm dark:bg-red-950 dark:border-red-800 dark:text-red-300">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
           {error}
         </div>
       )}
 
       {reports.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-zinc-500 dark:text-zinc-400 mb-4">
+          <p className="text-text-muted mb-4">
             No reports yet. Generate your first report from the home page.
           </p>
           <Link
             href="/"
-            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="text-primary hover:text-primary-hover"
           >
             Go to workflow
           </Link>
         </div>
       ) : filteredReports.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-zinc-500 dark:text-zinc-400">
+          <p className="text-text-muted">
             No reports found for this agent.
           </p>
         </div>
@@ -117,40 +117,40 @@ export default function ReportsPage() {
           {filteredReports.map((report) => (
             <div
               key={report.id}
-              className="border border-zinc-200 rounded-lg p-4 dark:border-zinc-700"
+              className="border border-border rounded-lg p-4 "
             >
               <div className="flex items-start justify-between">
                 <Link
                   href={`/reports/${report.id}`}
                   className="flex-1 hover:opacity-80 transition-opacity"
                 >
-                  <h2 className="font-medium text-zinc-900 dark:text-zinc-100">
+                  <h2 className="font-medium text-text-primary">
                     {report.title}
                   </h2>
                   <div className="flex items-center gap-3 mt-1">
                     {report.person && (
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                      <span className="text-xs text-text-muted">
                         {report.person.name}
                       </span>
                     )}
                     {report.agent && (
-                      <span className="text-xs bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded dark:bg-zinc-800 dark:text-zinc-400">
+                      <span className="text-xs bg-surface-alt text-text-secondary px-2 py-0.5 rounded bg-surface-alt ">
                         {report.agent.name}
                       </span>
                     )}
-                    <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                    <span className="text-xs text-text-faint">
                       {new Date(report.createdAt).toLocaleDateString()} at{' '}
                       {new Date(report.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-2 line-clamp-2">
+                  <p className="text-sm text-text-secondary mt-2 line-clamp-2">
                     {report.content.substring(0, 150)}
                     {report.content.length > 150 ? '...' : ''}
                   </p>
                 </Link>
                 <button
                   onClick={() => handleDelete(report.id)}
-                  className="ml-4 p-1 text-zinc-400 hover:text-red-500 transition-colors"
+                  className="ml-4 p-1 text-text-faint hover:text-red-500 transition-colors"
                   aria-label="Delete report"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
