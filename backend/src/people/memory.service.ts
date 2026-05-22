@@ -6,7 +6,7 @@ import { Person } from '../database/entities/person.entity';
 import { BedrockService } from '../reports/bedrock.service';
 import { UpdateMemoryDto } from './dto/update-memory.dto';
 
-const EXTRACTION_SYSTEM_PROMPT = `You are a memory extraction assistant. Given a report about a person, extract the key facts, decisions, action items, and themes as a JSON array of short, factual statements.
+const DEFAULT_EXTRACTION_PROMPT = `You are a memory extraction assistant. Given a report about a person, extract the key facts, decisions, action items, and themes as a JSON array of short, factual statements.
 
 Rules:
 - Each item should be a single sentence or short phrase
@@ -84,10 +84,13 @@ export class MemoryService {
     personId: string,
     reportId: string,
     reportContent: string,
+    customExtractionPrompt?: string,
   ): Promise<void> {
     try {
+      const systemPrompt = customExtractionPrompt || DEFAULT_EXTRACTION_PROMPT;
+
       const response = await this.bedrockService.invoke({
-        systemPrompt: EXTRACTION_SYSTEM_PROMPT,
+        systemPrompt,
         userMessage: reportContent,
       });
 

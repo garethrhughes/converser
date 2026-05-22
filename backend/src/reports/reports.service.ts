@@ -166,7 +166,7 @@ export class ReportsService {
     // Fire-and-forget memory extraction (non-blocking)
     setImmediate(() => {
       this.memoryService
-        .extractAndStore(userId, dto.personId, saved.id, content)
+        .extractAndStore(userId, dto.personId, saved.id, content, agent.memoryInstructions)
         .catch(() => {
           // Already logged inside extractAndStore
         });

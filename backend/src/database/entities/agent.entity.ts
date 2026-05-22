@@ -26,6 +26,9 @@ export class Agent {
   @Column({ type: 'text' })
   instructions!: string;
 
+  @Column({ name: 'memory_instructions', type: 'text', nullable: true })
+  memoryInstructions?: string;
+
   @Column({ name: 'is_default', default: false })
   isDefault!: boolean;
 

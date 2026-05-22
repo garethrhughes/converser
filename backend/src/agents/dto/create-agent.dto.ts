@@ -20,4 +20,12 @@ export class CreateAgentDto {
   @ApiProperty({ description: 'Agent instructions in markdown' })
   @IsString()
   instructions!: string;
+
+  @ApiProperty({
+    description: 'Custom memory extraction instructions in markdown (uses default if not set)',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  memoryInstructions?: string;
 }

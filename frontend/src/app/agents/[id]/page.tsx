@@ -10,6 +10,7 @@ interface Agent {
   name: string;
   description: string;
   instructions: string;
+  memoryInstructions?: string;
 }
 
 export default function EditAgentPage() {
@@ -18,6 +19,7 @@ export default function EditAgentPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [instructions, setInstructions] = useState('');
+  const [memoryInstructions, setMemoryInstructions] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +31,7 @@ export default function EditAgentPage() {
         setName(agent.name);
         setDescription(agent.description ?? '');
         setInstructions(agent.instructions ?? '');
+        setMemoryInstructions(agent.memoryInstructions ?? '');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch agent');
       } finally {
@@ -45,7 +48,12 @@ export default function EditAgentPage() {
     setError(null);
 
     try {
-      await api.patch(`/agents/${params.id}`, { name, description, instructions });
+      await api.patch(`/agents/${params.id}`, {
+        name,
+        description,
+        instructions,
+        memoryInstructions: memoryInstructions || undefined,
+      });
       router.push('/agents');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update agent');
@@ -111,6 +119,20 @@ export default function EditAgentPage() {
             value={instructions}
             onChange={setInstructions}
             placeholder="Write agent instructions in Markdown..."
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+            Memory Extraction Instructions
+          </label>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">
+            Custom instructions for how memories are extracted from reports. Leave blank to use the default extraction logic. Must instruct the model to return a JSON array of strings.
+          </p>
+          <MarkdownEditor
+            value={memoryInstructions}
+            onChange={setMemoryInstructions}
+            placeholder="Custom memory extraction instructions (optional)..."
           />
         </div>
 

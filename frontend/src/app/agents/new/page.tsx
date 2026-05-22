@@ -10,6 +10,7 @@ export default function NewAgentPage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [instructions, setInstructions] = useState('');
+  const [memoryInstructions, setMemoryInstructions] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +20,12 @@ export default function NewAgentPage() {
     setError(null);
 
     try {
-      await api.post('/agents', { name, description, instructions });
+      await api.post('/agents', {
+        name,
+        description,
+        instructions,
+        memoryInstructions: memoryInstructions || undefined,
+      });
       router.push('/agents');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create agent');
@@ -77,6 +83,20 @@ export default function NewAgentPage() {
             value={instructions}
             onChange={setInstructions}
             placeholder="Write agent instructions in Markdown..."
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+            Memory Extraction Instructions
+          </label>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">
+            Custom instructions for how memories are extracted from reports. Leave blank to use the default extraction logic. Must instruct the model to return a JSON array of strings.
+          </p>
+          <MarkdownEditor
+            value={memoryInstructions}
+            onChange={setMemoryInstructions}
+            placeholder="Custom memory extraction instructions (optional)..."
           />
         </div>
 
