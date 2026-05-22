@@ -30,15 +30,15 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-60 bg-surface-brand flex flex-col border-r border-border">
+    <aside className="fixed left-0 top-0 h-full w-60 bg-squirrel-900 flex flex-col">
       <Link
         href="/"
-        className="flex items-center gap-2 px-5 py-5 border-b border-border transition-colors hover:bg-surface-hover"
+        className="flex items-center gap-2 px-5 py-5 border-b border-squirrel-800 transition-colors hover:bg-squirrel-800"
       >
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-fg font-bold text-sm">
+        <div className="w-8 h-8 bg-squirrel-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
           C
         </div>
-        <span className="text-lg font-semibold text-text-primary">Converser</span>
+        <span className="text-lg font-semibold text-white">Converser</span>
       </Link>
 
       <nav className="flex-1 py-4">
@@ -57,8 +57,8 @@ export function Sidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-interactive-selected-bg text-interactive-selected-fg'
-                      : 'text-text-primary hover:bg-surface-hover'
+                      ? 'bg-squirrel-800 text-white'
+                      : 'text-squirrel-200 hover:bg-squirrel-800 hover:text-white'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -70,10 +70,10 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      <div className="px-3 py-4 border-t border-border">
+      <div className="px-3 py-4 border-t border-squirrel-800">
         <Link
           href="/logout"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-squirrel-200 hover:bg-squirrel-800 hover:text-white transition-colors"
         >
           <LogOut className="h-5 w-5" />
           Logout
