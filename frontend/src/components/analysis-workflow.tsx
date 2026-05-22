@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { api } from '@/lib/api';
 import type {
   Person,
@@ -469,7 +470,7 @@ export function AnalysisWorkflow() {
         <StepContainer title={report.title} subtitle="Report generated successfully">
           <div className="border border-zinc-200 rounded-lg p-6 mb-6 dark:border-zinc-700">
             <div className="prose prose-zinc dark:prose-invert max-w-none">
-              <Markdown>{report.content}</Markdown>
+              <Markdown remarkPlugins={[remarkGfm]}>{report.content}</Markdown>
             </div>
           </div>
           <button
