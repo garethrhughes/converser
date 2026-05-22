@@ -9,8 +9,8 @@ start:
 
 # Stop everything
 stop:
-	-lsof -ti :3000 | xargs kill -9 2>/dev/null || true
-	-lsof -ti :3001 | xargs kill -9 2>/dev/null || true
+	-lsof -ti :3000 -sTCP:LISTEN | xargs kill 2>/dev/null || true
+	-lsof -ti :3001 -sTCP:LISTEN | xargs kill 2>/dev/null || true
 	docker compose down
 
 # Local dependencies
