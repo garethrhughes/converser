@@ -87,7 +87,11 @@ export class MemoryService {
     customExtractionPrompt?: string,
   ): Promise<void> {
     try {
-      const systemPrompt = customExtractionPrompt || DEFAULT_EXTRACTION_PROMPT;
+      const JSON_SUFFIX = '\n\nIMPORTANT: Return ONLY a valid JSON array of strings, nothing else.';
+      const basePrompt = customExtractionPrompt || DEFAULT_EXTRACTION_PROMPT;
+      const systemPrompt = customExtractionPrompt
+        ? basePrompt + JSON_SUFFIX
+        : basePrompt;
 
       const response = await this.bedrockService.invoke({
         systemPrompt,
