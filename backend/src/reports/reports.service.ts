@@ -1,8 +1,10 @@
 import {
   Injectable,
+  Inject,
   Logger,
   NotFoundException,
   BadRequestException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -13,7 +15,9 @@ import { Context } from '../database/entities/context.entity';
 import { Conversation } from '../database/entities/conversation.entity';
 import { ConversationSection } from '../database/entities/conversation-section.entity';
 import { Person } from '../database/entities/person.entity';
+import { Memory } from '../database/entities/memory.entity';
 import { BedrockService } from './bedrock.service';
+import { MemoryService } from '../people/memory.service';
 import { GenerateReportDto } from './dto/generate-report.dto';
 
 @Injectable()
@@ -33,7 +37,11 @@ export class ReportsService {
     private readonly sectionRepository: Repository<ConversationSection>,
     @InjectRepository(Person)
     private readonly personRepository: Repository<Person>,
+    @InjectRepository(Memory)
+    private readonly memoryRepository: Repository<Memory>,
     private readonly bedrockService: BedrockService,
+    @Inject(forwardRef(() => MemoryService))
+    private readonly memoryService: MemoryService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -100,8 +108,19 @@ export class ReportsService {
       }
     }
 
+    // Load existing memory for this person
+    const memories = await this.memoryRepository.find({
+      where: { userId, personId: dto.personId },
+      order: { createdAt: 'ASC' },
+    });
+
     // Assemble the prompt
-    const systemPrompt = this.assembleSystemPrompt(agent.instructions, contexts);
+    const systemPrompt = this.assembleSystemPrompt(
+      agent.instructions,
+      contexts,
+      memories,
+      person.name,
+    );
     const userMessage = section.content;
 
     // Invoke Bedrock
@@ -142,6 +161,15 @@ export class ReportsService {
       reportId: saved.id,
       userId,
       modelId,
+    });
+
+    // Fire-and-forget memory extraction (non-blocking)
+    setImmediate(() => {
+      this.memoryService
+        .extractAndStore(userId, dto.personId, saved.id, content)
+        .catch(() => {
+          // Already logged inside extractAndStore
+        });
     });
 
     return saved;
@@ -199,15 +227,23 @@ export class ReportsService {
   private assembleSystemPrompt(
     instructions: string,
     contexts: Context[],
+    memories: Memory[],
+    personName: string,
   ): string {
-    if (contexts.length === 0) {
-      return instructions;
+    const parts: string[] = [instructions];
+
+    if (contexts.length > 0) {
+      const contextSection = contexts
+        .map((ctx) => `## ${ctx.name}\n\n${ctx.content}`)
+        .join('\n\n');
+      parts.push(contextSection);
     }
 
-    const contextSection = contexts
-      .map((ctx) => `## ${ctx.name}\n\n${ctx.content}`)
-      .join('\n\n');
+    if (memories.length > 0) {
+      const memorySection = `## Memory (prior knowledge about ${personName})\n\n${memories.map((m) => `- ${m.content}`).join('\n')}`;
+      parts.push(memorySection);
+    }
 
-    return `${instructions}\n\n---\n\n${contextSection}`;
+    return parts.join('\n\n---\n\n');
   }
 }

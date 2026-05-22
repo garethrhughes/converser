@@ -65,3 +65,12 @@ export interface GenerateReportRequest {
   contextIds: string[];
   agentId: string;
 }
+
+export interface MemoryItem {
+  id: string;
+  personId: string;
+  reportId?: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}

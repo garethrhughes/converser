@@ -7,12 +7,14 @@ import {
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { BedrockService } from './bedrock.service';
+import { MemoryService } from '../people/memory.service';
 import { Report } from '../database/entities/report.entity';
 import { Agent } from '../database/entities/agent.entity';
 import { Context } from '../database/entities/context.entity';
 import { Conversation } from '../database/entities/conversation.entity';
 import { ConversationSection } from '../database/entities/conversation-section.entity';
 import { Person } from '../database/entities/person.entity';
+import { Memory } from '../database/entities/memory.entity';
 import { ConfigService } from '@nestjs/config';
 
 describe('ReportsService', () => {
@@ -29,7 +31,9 @@ describe('ReportsService', () => {
   let conversationRepository: { findOne: jest.Mock };
   let sectionRepository: { findOne: jest.Mock; find: jest.Mock };
   let personRepository: { findOne: jest.Mock };
+  let memoryRepository: { find: jest.Mock };
   let bedrockService: { invoke: jest.Mock };
+  let memoryService: { extractAndStore: jest.Mock };
   let configService: { get: jest.Mock };
 
   const userId = 'user-uuid-1';
@@ -86,7 +90,9 @@ describe('ReportsService', () => {
     conversationRepository = { findOne: jest.fn() };
     sectionRepository = { findOne: jest.fn(), find: jest.fn() };
     personRepository = { findOne: jest.fn() };
+    memoryRepository = { find: jest.fn().mockResolvedValue([]) };
     bedrockService = { invoke: jest.fn() };
+    memoryService = { extractAndStore: jest.fn().mockResolvedValue(undefined) };
     configService = {
       get: jest.fn((key: string) => {
         if (key === 'AWS_BEDROCK_MODEL_ID')
@@ -110,7 +116,9 @@ describe('ReportsService', () => {
           useValue: sectionRepository,
         },
         { provide: getRepositoryToken(Person), useValue: personRepository },
+        { provide: getRepositoryToken(Memory), useValue: memoryRepository },
         { provide: BedrockService, useValue: bedrockService },
+        { provide: MemoryService, useValue: memoryService },
         { provide: ConfigService, useValue: configService },
       ],
     }).compile();
