@@ -5,6 +5,15 @@ import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
 
+const DEFAULT_MEMORY_INSTRUCTIONS = `You are a memory extraction assistant. Given a report about a person, extract the key facts, decisions, action items, and themes as a JSON array of short, factual statements.
+
+Rules:
+- Each item should be a single sentence or short phrase
+- Focus on facts, decisions made, action items, and recurring themes
+- Do not include opinions or speculation
+
+Example output: ["Prefers async communication", "Action: migrate to new API by Q2", "Recurring theme: deployment friction"]`;
+
 interface Agent {
   id: string;
   name: string;
@@ -127,8 +136,17 @@ export default function EditAgentPage() {
             Memory Extraction Instructions
           </label>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-2">
-            Custom instructions for how memories are extracted from reports. Leave blank to use the default extraction logic. Must instruct the model to return a JSON array of strings.
+            Custom instructions for how memories are extracted from reports. Must instruct the model to return a JSON array of strings.
           </p>
+          {!memoryInstructions && (
+            <button
+              type="button"
+              onClick={() => setMemoryInstructions(DEFAULT_MEMORY_INSTRUCTIONS)}
+              className="mb-2 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              Load default template
+            </button>
+          )}
           <MarkdownEditor
             value={memoryInstructions}
             onChange={setMemoryInstructions}
