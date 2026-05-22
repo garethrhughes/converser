@@ -58,7 +58,7 @@ export function Sidebar() {
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-interactive-selected-bg text-interactive-selected-fg'
-                      : 'text-text-secondary hover:bg-surface-hover'
+                      : 'text-text-primary hover:bg-surface-hover'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -73,7 +73,7 @@ export function Sidebar() {
       <div className="px-3 py-4 border-t border-border">
         <Link
           href="/logout"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-hover transition-colors"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors"
         >
           <LogOut className="h-5 w-5" />
           Logout
