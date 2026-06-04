@@ -212,7 +212,7 @@ describe('IntegrationsService', () => {
       ],
       summary: {
         keywords: ['hello'],
-        actionItems: [],
+        actionItems: 'Follow up on greeting',
         overview: 'A greeting.',
         shortSummary: 'Short greeting.',
       },

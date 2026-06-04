@@ -209,7 +209,7 @@ describe('FirefliesService', () => {
           ],
           summary: {
             keywords: ['timeline', 'project'],
-            action_items: ['Follow up on timeline'],
+            action_items: '**Alice**\nFollow up on timeline (00:15:00)',
             overview: 'Discussion about project timeline.',
             short_summary: 'Quick chat about timelines.',
           },
@@ -261,7 +261,7 @@ describe('FirefliesService', () => {
         ],
         summary: {
           keywords: ['timeline', 'project'],
-          actionItems: ['Follow up on timeline'],
+          actionItems: '**Alice**\nFollow up on timeline (00:15:00)',
           overview: 'Discussion about project timeline.',
           shortSummary: 'Quick chat about timelines.',
         },
@@ -315,7 +315,7 @@ describe('FirefliesService', () => {
       ).rejects.toThrow('Fireflies API error: 500 Internal Server Error');
     });
 
-    it('normalises action_items when returned as a newline-delimited string', async () => {
+    it('passes action_items string through as-is', async () => {
       const responseWithStringItems = {
         data: {
           transcript: {
@@ -323,8 +323,8 @@ describe('FirefliesService', () => {
             summary: {
               ...mockTranscriptResponse.data.transcript.summary,
               action_items:
-                '- Follow up on timeline\n- Review the budget\n* Send notes',
-              keywords: 'timeline, project, budget',
+                '**Gareth Hughes**\nShare updated timeline (08:05)\n\n**Ciaran McKeown**\nLead technical discussions (08:20)',
+              keywords: ['timeline', 'chemicals'],
             },
           },
         },
@@ -337,14 +337,9 @@ describe('FirefliesService', () => {
 
       const result = await service.getTranscript('api-key', 'transcript-1');
 
-      expect(result.summary!.actionItems).toEqual([
-        'Follow up on timeline',
-        'Review the budget',
-        'Send notes',
-      ]);
-      expect(result.summary!.keywords).toEqual([
-        'timeline, project, budget',
-      ]);
+      expect(result.summary!.actionItems).toContain('**Gareth Hughes**');
+      expect(result.summary!.actionItems).toContain('Share updated timeline (08:05)');
+      expect(result.summary!.keywords).toEqual(['timeline', 'chemicals']);
     });
   });
 });

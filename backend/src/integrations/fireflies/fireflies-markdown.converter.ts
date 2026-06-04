@@ -55,12 +55,10 @@ function buildSummaryMarkdown(data: FirefliesTranscript): string {
     lines.push('');
   }
 
-  if (summary.actionItems.length > 0) {
+  if (summary.actionItems.trim().length > 0) {
     lines.push('### Action Items');
     lines.push('');
-    for (const item of summary.actionItems) {
-      lines.push(`- ${item}`);
-    }
+    lines.push(summary.actionItems.trim());
     lines.push('');
   }
 

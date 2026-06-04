@@ -42,7 +42,7 @@ describe('convertTranscriptToMarkdown', () => {
     ],
     summary: {
       keywords: ['timeline', 'project'],
-      actionItems: ['Follow up on timeline'],
+      actionItems: '**Alice Smith**\nFollow up on timeline (00:15:00)',
       overview: 'Discussion about project timeline.',
       shortSummary: 'Quick chat about timelines.',
     },

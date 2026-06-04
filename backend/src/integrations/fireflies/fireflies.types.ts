@@ -25,7 +25,7 @@ export interface FirefliesSentence {
 
 export interface FirefliesSummary {
   keywords: string[];
-  actionItems: string[];
+  actionItems: string;
   overview: string;
   shortSummary: string;
 }
