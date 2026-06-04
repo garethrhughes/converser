@@ -5,10 +5,13 @@ import type { PiiCategory, RedactionEntry, RedactionResult } from './pii.types';
 const REDACTION_MARKER = '[REDACTED]';
 
 /**
- * UK National Insurance Number: 2 letters + 6 digits + 1 suffix letter (A-D).
- * Broadly matched to avoid missing valid formats; errs on side of redaction.
+ * UK National Insurance Number: 2 prefix letters + 6 digits + 1 suffix letter (A-D).
+ * First letter: not D, F, I, Q, U, V. Second letter: not D, F, I, O, Q, U, V.
+ * Prefixes BG, GB, NK, KN, TN, NT, ZZ are also invalid but not excluded here
+ * (errs slightly on side of redaction for those rare cases).
  */
-const UK_NI_REGEX = /\b[A-Z]{2}\s?\d{2}\s?\d{2}\s?\d{2}\s?[A-D]\b/gi;
+const UK_NI_REGEX =
+  /\b[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z]\s?\d{2}\s?\d{2}\s?\d{2}\s?[A-D]\b/gi;
 
 /**
  * Australian Tax File Number: 9 digits with optional spaces (XXX XXX XXX).

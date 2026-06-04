@@ -82,21 +82,21 @@ describe('PiiRedactionService', () => {
     });
 
     it('redacts UK National Insurance numbers', () => {
-      const input = 'NI number: QQ 12 34 56 C for the record.';
+      const input = 'NI number: AB 12 34 56 C for the record.';
 
       const result = service.redact(input);
 
-      expect(result.content).not.toContain('QQ 12 34 56 C');
+      expect(result.content).not.toContain('AB 12 34 56 C');
       expect(result.redacted).toBe(true);
       expect(result.summary['national-id']).toBe(1);
     });
 
     it('redacts UK NI numbers without spaces', () => {
-      const input = 'NI: QQ123456C is registered.';
+      const input = 'NI: AB123456C is registered.';
 
       const result = service.redact(input);
 
-      expect(result.content).not.toContain('QQ123456C');
+      expect(result.content).not.toContain('AB123456C');
       expect(result.redacted).toBe(true);
     });
 

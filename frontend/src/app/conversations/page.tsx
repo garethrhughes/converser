@@ -117,21 +117,21 @@ export default function ConversationsPage() {
   }
 
   function formatRedactionSummary(summary: RedactionSummary): string {
-    const labels: Record<string, string> = {
-      email: 'email address',
-      phone: 'phone number',
-      'credit-card': 'credit card number',
-      ssn: 'SSN',
-      'national-id': 'national ID number',
-      'date-of-birth': 'date of birth',
-      address: 'physical address',
+    const labels: Record<string, [string, string]> = {
+      email: ['email address', 'email addresses'],
+      phone: ['phone number', 'phone numbers'],
+      'credit-card': ['credit card number', 'credit card numbers'],
+      ssn: ['SSN', 'SSNs'],
+      'national-id': ['national ID number', 'national ID numbers'],
+      'date-of-birth': ['date of birth', 'dates of birth'],
+      address: ['physical address', 'physical addresses'],
     };
 
     const parts: string[] = [];
     for (const [category, count] of Object.entries(summary.categories)) {
       if (count > 0) {
-        const label = labels[category] || category;
-        parts.push(`${count} ${label}${count > 1 ? 's' : ''}`);
+        const [singular, plural] = labels[category] || [category, `${category}s`];
+        parts.push(`${count} ${count > 1 ? plural : singular}`);
       }
     }
 
