@@ -9,3 +9,4 @@
 | [0005](0005-memory-in-people-module.md) | Memory lives in PeopleModule | Accepted | 2026-05-22 |
 | [0006](0006-fire-and-forget-extraction.md) | Fire-and-forget memory extraction | Accepted | 2026-05-22 |
 | [0007](0007-memory-changes-jsonb-on-report.md) | Memory changes as JSONB on reports | Accepted | 2026-05-22 |
+| [0008](0008-fireflies-per-user-api-key.md) | Fireflies.ai integration via per-user API key | Accepted | 2026-06-04 |

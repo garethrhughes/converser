@@ -81,3 +81,17 @@ export interface MemoryItem {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface FirefliesMeeting {
+  id: string;
+  title: string;
+  date: string;
+  duration: number;
+  participants: string[];
+  hostEmail: string;
+  transcriptUrl: string | null;
+}
+
+export interface FirefliesStatus {
+  connected: boolean;
+}

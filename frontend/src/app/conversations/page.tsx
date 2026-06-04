@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { GoogleDrivePicker } from '@/components/google-drive-picker';
-import type { Conversation, Person } from '@/types';
+import { FirefliesMeetingPicker } from '@/components/fireflies-meeting-picker';
+import type { Conversation, Person, FirefliesStatus } from '@/types';
 
 export default function ConversationsPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -15,6 +16,8 @@ export default function ConversationsPage() {
   const [selectedPersonId, setSelectedPersonId] = useState<string>('');
   const [importing, setImporting] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
+  const [showFirefliesPicker, setShowFirefliesPicker] = useState(false);
+  const [firefliesStatus, setFirefliesStatus] = useState<FirefliesStatus | null>(null);
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -32,6 +35,7 @@ export default function ConversationsPage() {
   useEffect(() => {
     fetchConversations();
     fetchPeople();
+    fetchFirefliesStatus();
   }, [fetchConversations]);
 
   async function fetchPeople() {
@@ -40,6 +44,15 @@ export default function ConversationsPage() {
       setPeople(data);
     } catch {
       // Non-critical
+    }
+  }
+
+  async function fetchFirefliesStatus() {
+    try {
+      const data = await api.get<FirefliesStatus>('/integrations/fireflies/status');
+      setFirefliesStatus(data);
+    } catch {
+      // Non-critical — Fireflies import won't be available
     }
   }
 
@@ -57,6 +70,25 @@ export default function ConversationsPage() {
       await fetchConversations();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to import conversation');
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  async function handleFirefliesSelect(transcriptId: string) {
+    setShowFirefliesPicker(false);
+    setImporting(true);
+    setError(null);
+
+    try {
+      const body: { transcriptId: string; personId?: string } = { transcriptId };
+      if (selectedPersonId) {
+        body.personId = selectedPersonId;
+      }
+      await api.post('/integrations/fireflies/import', body);
+      await fetchConversations();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to import from Fireflies');
     } finally {
       setImporting(false);
     }
@@ -96,8 +128,8 @@ export default function ConversationsPage() {
       )}
 
       {/* Import section */}
-      <div className="mb-8 p-5 border border-border rounded-lg bg-surface-alt ">
-        <h2 className="text-sm font-medium text-text-secondary mb-3">Import from Google Drive</h2>
+      <div className="mb-8 p-5 border border-border rounded-lg bg-surface-alt">
+        <h2 className="text-sm font-medium text-text-secondary mb-3">Import Conversation</h2>
         <div className="flex items-end gap-4">
           <div className="flex-1 max-w-xs">
             <label htmlFor="person-select" className="block text-xs text-text-muted mb-1">
@@ -107,7 +139,7 @@ export default function ConversationsPage() {
               id="person-select"
               value={selectedPersonId}
               onChange={(e) => setSelectedPersonId(e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-md bg-transparent text-sm text-text-primary transition-colors hover:border-squirrel-300 focus:border-squirrel-400 focus:ring-1 focus:ring-squirrel-400 focus:outline-none  "
+              className="w-full px-3 py-2 border border-border rounded-md bg-transparent text-sm text-text-primary transition-colors hover:border-squirrel-300 focus:border-squirrel-400 focus:ring-1 focus:ring-squirrel-400 focus:outline-none"
             >
               <option value="">No person</option>
               {people.map((person) => (
@@ -117,19 +149,30 @@ export default function ConversationsPage() {
               ))}
             </select>
           </div>
-          <button
-            onClick={() => setShowPicker(true)}
-            disabled={importing}
-            className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {importing ? 'Importing...' : 'Import'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowPicker(true)}
+              disabled={importing}
+              className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {importing ? 'Importing...' : 'Google Drive'}
+            </button>
+            {firefliesStatus?.connected && (
+              <button
+                onClick={() => setShowFirefliesPicker(true)}
+                disabled={importing}
+                className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {importing ? 'Importing...' : 'Fireflies'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {importing && (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">
-          Importing conversation from Google Drive...
+          Importing conversation...
         </div>
       )}
 
@@ -141,16 +184,25 @@ export default function ConversationsPage() {
         />
       )}
 
+      {/* Fireflies Meeting Picker */}
+      {showFirefliesPicker && (
+        <FirefliesMeetingPicker
+          onSelect={handleFirefliesSelect}
+          onCancel={() => setShowFirefliesPicker(false)}
+        />
+      )}
+
       {conversations.length === 0 ? (
         <p className="text-text-muted">
-          No conversations yet. Import your first conversation from Google Drive.
+          No conversations yet. Import your first conversation from Google Drive
+          {firefliesStatus?.connected ? ' or Fireflies' : ''}.
         </p>
       ) : (
         <div className="flex flex-col gap-3">
           {conversations.map((conversation) => (
             <div
               key={conversation.id}
-              className="rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md "
+              className="rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-start justify-between">
                 <Link
@@ -166,8 +218,10 @@ export default function ConversationsPage() {
                         {conversation.person.name}
                       </span>
                     )}
-                    <span className="text-xs bg-surface-alt text-text-secondary px-2 py-0.5 rounded bg-surface-alt ">
-                      {conversation.sourceType}
+                    <span className="text-xs bg-surface-alt text-text-secondary px-2 py-0.5 rounded">
+                      {conversation.sourceType === 'fireflies'
+                        ? 'Fireflies'
+                        : 'Google Docs'}
                     </span>
                     <span className="text-xs text-text-faint">
                       Imported {new Date(conversation.importedAt).toLocaleDateString()}

@@ -9,6 +9,8 @@ start:
 
 # Stop everything
 stop:
+	-pkill -f "nest start --watch" 2>/dev/null || true
+	-pkill -f "next dev" 2>/dev/null || true
 	-lsof -ti :3000 -sTCP:LISTEN | xargs kill 2>/dev/null || true
 	-lsof -ti :3001 -sTCP:LISTEN | xargs kill 2>/dev/null || true
 	docker compose down

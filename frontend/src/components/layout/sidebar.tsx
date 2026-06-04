@@ -9,6 +9,7 @@ import {
   Bot,
   FileText,
   ClipboardList,
+  Plug,
   LogOut,
 } from 'lucide-react';
 
@@ -22,6 +23,7 @@ const mainNavItems = [
 const settingsNavItems = [
   { href: '/agents', label: 'Agents', icon: Bot },
   { href: '/contexts', label: 'Contexts', icon: FileText },
+  { href: '/settings/integrations', label: 'Integrations', icon: Plug },
 ];
 
 export function Sidebar() {

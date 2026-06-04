@@ -32,6 +32,9 @@ export class User {
   @Column({ name: 'google_refresh_token_enc', type: 'text', nullable: true })
   googleRefreshTokenEnc?: string;
 
+  @Column({ name: 'fireflies_api_key_enc', type: 'text', nullable: true })
+  firefliesApiKeyEnc?: string | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
