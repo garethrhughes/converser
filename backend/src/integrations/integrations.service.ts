@@ -14,7 +14,7 @@ import { FirefliesService } from './fireflies/fireflies.service';
 import { convertTranscriptToMarkdown } from './fireflies/fireflies-markdown.converter';
 import { encrypt, decrypt } from '../common/crypto.util';
 import type { ImportFirefliesDto } from './dto/import-fireflies.dto';
-import type { ListMeetingsOptions } from './fireflies/fireflies.types';
+import type { ListMeetingsOptions, FirefliesMeeting } from './fireflies/fireflies.types';
 
 @Injectable()
 export class IntegrationsService {
@@ -63,7 +63,10 @@ export class IntegrationsService {
     return { connected: !!user.firefliesApiKeyEnc };
   }
 
-  async listFirefliesMeetings(userId: string, options: ListMeetingsOptions) {
+  async listFirefliesMeetings(
+    userId: string,
+    options: ListMeetingsOptions,
+  ): Promise<FirefliesMeeting[]> {
     const apiKey = await this.getDecryptedApiKey(userId);
     return this.firefliesService.listMeetings(apiKey, options);
   }
@@ -90,7 +93,7 @@ export class IntegrationsService {
         transcriptId: dto.transcriptId,
         conversationId: existing.id,
       });
-      return existing;
+      return this.findConversationWithSections(userId, existing.id);
     }
 
     const transcript = await this.firefliesService.getTranscript(
@@ -144,7 +147,26 @@ export class IntegrationsService {
       sectionCount: sections.length,
     });
 
-    return savedConversation;
+    return this.findConversationWithSections(userId, savedConversation.id);
+  }
+
+  private async findConversationWithSections(
+    userId: string,
+    conversationId: string,
+  ): Promise<Conversation> {
+    const conversation = await this.conversationRepository.findOne({
+      where: { id: conversationId, userId },
+      relations: { sections: true },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException(
+        `Conversation with id ${conversationId} not found`,
+      );
+    }
+
+    conversation.sections.sort((a, b) => a.order - b.order);
+    return conversation;
   }
 
   private async findUserOrThrow(userId: string): Promise<User> {

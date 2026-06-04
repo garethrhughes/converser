@@ -53,10 +53,15 @@ export function FirefliesMeetingPicker({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg rounded-xl border border-border bg-surface shadow-lg max-h-[80vh] flex flex-col">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="fireflies-picker-title"
+        className="w-full max-w-lg rounded-xl border border-border bg-surface shadow-lg max-h-[80vh] flex flex-col"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
-          <h2 className="text-lg font-semibold text-text-primary">
+          <h2 id="fireflies-picker-title" className="text-lg font-semibold text-text-primary">
             Select a Fireflies Meeting
           </h2>
           <button

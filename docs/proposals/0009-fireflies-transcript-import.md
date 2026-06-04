@@ -50,7 +50,7 @@ sequenceDiagram
     FF-->>API: Meeting list
     API-->>Frontend: Meeting list (title, date, participants, duration)
     User->>Frontend: Select meeting → Confirm import
-    Frontend->>API: POST /conversations/import/fireflies { transcriptId }
+    Frontend->>API: POST /integrations/fireflies/import { transcriptId }
     API->>FF: query { transcript(id) { sentences, summary, speakers } }
     FF-->>API: Full transcript data
     API->>API: Convert to markdown
@@ -129,7 +129,7 @@ tables support multiple source types via `sourceType`.
 | DELETE | `/integrations/fireflies` | Disconnect Fireflies (remove API key) |
 | GET | `/integrations/fireflies/status` | Check if connected |
 | GET | `/integrations/fireflies/meetings` | List available meetings (paginated) |
-| POST | `/conversations/import/fireflies` | Import a specific transcript |
+| POST | `/integrations/fireflies/import` | Import a specific transcript |
 
 **Connect DTO:** `{ apiKey: string }`
 **Import DTO:** `{ transcriptId: string, personId?: string }`
@@ -194,7 +194,7 @@ flowchart LR
     E -->|Google Drive| F[Google Picker]
     E -->|Fireflies| G[Meeting List Modal]
     G -->|Select Meeting| H[Confirm Import]
-    H -->|POST /conversations/import/fireflies| I[Conversation Created]
+    H -->|POST /integrations/fireflies/import| I[Conversation Created]
 ```
 
 - **Settings/Integrations page:** New route `/settings/integrations` with a card for
@@ -249,7 +249,7 @@ content block).
 | Area | Impact | Notes |
 |---|---|---|
 | Database | Migration required | New nullable column on `users` table |
-| API contract | Additive | New endpoints under `/integrations/` and `/conversations/import/fireflies` |
+| API contract | Additive | New endpoints under `/integrations/fireflies/*` |
 | Frontend | New pages + modified import flow | Settings/integrations page; import source selection |
 | Tests | New unit + integration tests | FirefliesService, IntegrationsController, import flow |
 | External API | New integration | Fireflies GraphQL API; rate limit awareness needed |
@@ -273,7 +273,7 @@ None — the brief is clear and the Fireflies API is well-documented.
 4. `GET /integrations/fireflies/status` returns `{ connected: boolean }` for the authenticated user
 5. `GET /integrations/fireflies/meetings` returns a paginated list of meetings (title, date, duration, participants) when a valid key is stored
 6. `GET /integrations/fireflies/meetings` returns 400 if no Fireflies key is configured
-7. `POST /conversations/import/fireflies` with a valid `transcriptId` creates a Conversation with `sourceType: 'fireflies'`, a section containing the markdown transcript, and optionally links to a Person
+7. `POST /integrations/fireflies/import` with a valid `transcriptId` creates a Conversation with `sourceType: 'fireflies'`, a section containing the markdown transcript, and optionally links to a Person
 8. The imported markdown contains speaker names, timestamps, and dialogue in a readable format
 9. If Fireflies API returns a summary, it is stored as a second ConversationSection
 10. Duplicate import (same `transcriptId` for same user) is handled gracefully (returns existing conversation or updates it)

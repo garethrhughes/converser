@@ -137,7 +137,7 @@ describe('FirefliesService', () => {
       );
     });
 
-    it('throws an error when the API responds with a non-OK status', async () => {
+    it('throws an HttpException with 429 status when rate limited', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 429,
@@ -146,7 +146,19 @@ describe('FirefliesService', () => {
 
       await expect(
         service.listMeetings('api-key', {}),
-      ).rejects.toThrow('Fireflies API error: 429 Too Many Requests');
+      ).rejects.toThrow('Fireflies API rate limit exceeded');
+    });
+
+    it('throws an error when the API responds with other non-OK status', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      });
+
+      await expect(
+        service.listMeetings('api-key', {}),
+      ).rejects.toThrow('Fireflies API error: 500 Internal Server Error');
     });
 
     it('throws an error when the response contains GraphQL errors', async () => {

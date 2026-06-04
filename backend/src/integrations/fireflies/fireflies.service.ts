@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import type {
   FirefliesMeeting,
   FirefliesTranscript,
@@ -79,6 +79,13 @@ export class FirefliesService {
     try {
       const response = await this.executeQuery(apiKey, VALIDATE_KEY_QUERY);
 
+      if (response.status === 429) {
+        throw new HttpException(
+          'Fireflies API rate limit exceeded. Please try again later.',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
+
       if (!response.ok) {
         return false;
       }
@@ -90,7 +97,10 @@ export class FirefliesService {
       }
 
       return true;
-    } catch {
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
       return false;
     }
   }
@@ -112,6 +122,12 @@ export class FirefliesService {
     );
 
     if (!response.ok) {
+      if (response.status === 429) {
+        throw new HttpException(
+          'Fireflies API rate limit exceeded. Please try again later.',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
       throw new Error(
         `Fireflies API error: ${response.status.toString()} ${response.statusText}`,
       );
@@ -155,6 +171,12 @@ export class FirefliesService {
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        throw new HttpException(
+          'Fireflies API rate limit exceeded. Please try again later.',
+          HttpStatus.TOO_MANY_REQUESTS,
+        );
+      }
       throw new Error(
         `Fireflies API error: ${response.status.toString()} ${response.statusText}`,
       );

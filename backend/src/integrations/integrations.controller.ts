@@ -8,6 +8,8 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { IntegrationsService } from './integrations.service';
@@ -47,13 +49,13 @@ export class IntegrationsController {
   @Get('fireflies/meetings')
   listFirefliesMeetings(
     @Request() req: JwtRequest,
-    @Query('limit') limit?: string,
-    @Query('skip') skip?: string,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number,
     @Query('fromDate') fromDate?: string,
   ) {
     return this.integrationsService.listFirefliesMeetings(req.user.sub, {
-      limit: limit ? parseInt(limit, 10) : 20,
-      skip: skip ? parseInt(skip, 10) : 0,
+      limit,
+      skip,
       fromDate,
     });
   }

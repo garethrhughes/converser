@@ -223,7 +223,16 @@ describe('IntegrationsService', () => {
     it('fetches the transcript, converts to markdown, and creates a conversation', async () => {
       userRepository.findOne.mockResolvedValue({ ...mockUserWithKey });
       firefliesService.getTranscript.mockResolvedValue(mockTranscript);
-      conversationRepository.findOne.mockResolvedValue(null); // no duplicate
+      conversationRepository.findOne
+        .mockResolvedValueOnce(null) // no duplicate
+        .mockResolvedValueOnce({
+          id: 'conv-1',
+          userId: 'user-1',
+          title: 'Weekly 1-1',
+          sourceType: 'fireflies',
+          sourceId: 'transcript-1',
+          sections: [{ order: 0, title: 'Transcript', content: '...' }],
+        }); // reload with sections
       conversationRepository.create.mockReturnValue({
         id: 'conv-1',
         userId: 'user-1',
@@ -266,9 +275,12 @@ describe('IntegrationsService', () => {
         userId: 'user-1',
         sourceType: 'fireflies',
         sourceId: 'transcript-1',
+        sections: [{ order: 0, title: 'Transcript', content: '...' }],
       };
       userRepository.findOne.mockResolvedValue({ ...mockUserWithKey });
-      conversationRepository.findOne.mockResolvedValue(existingConversation);
+      conversationRepository.findOne
+        .mockResolvedValueOnce({ id: 'existing-conv' }) // duplicate check
+        .mockResolvedValueOnce(existingConversation); // reload with sections
 
       const result = await service.importFromFireflies('user-1', {
         transcriptId: 'transcript-1',
@@ -291,7 +303,16 @@ describe('IntegrationsService', () => {
 
       userRepository.findOne.mockResolvedValue({ ...mockUserWithKey });
       firefliesService.getTranscript.mockResolvedValue(transcriptNoSummary);
-      conversationRepository.findOne.mockResolvedValue(null);
+      conversationRepository.findOne
+        .mockResolvedValueOnce(null) // no duplicate
+        .mockResolvedValueOnce({
+          id: 'conv-1',
+          userId: 'user-1',
+          title: 'Weekly 1-1',
+          sourceType: 'fireflies',
+          sourceId: 'transcript-1',
+          sections: [{ order: 0, title: 'Transcript', content: '...' }],
+        }); // reload with sections
       conversationRepository.create.mockReturnValue({
         id: 'conv-1',
         userId: 'user-1',
