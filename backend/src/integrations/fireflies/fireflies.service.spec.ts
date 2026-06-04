@@ -314,5 +314,37 @@ describe('FirefliesService', () => {
         service.getTranscript('api-key', 'transcript-1'),
       ).rejects.toThrow('Fireflies API error: 500 Internal Server Error');
     });
+
+    it('normalises action_items when returned as a newline-delimited string', async () => {
+      const responseWithStringItems = {
+        data: {
+          transcript: {
+            ...mockTranscriptResponse.data.transcript,
+            summary: {
+              ...mockTranscriptResponse.data.transcript.summary,
+              action_items:
+                '- Follow up on timeline\n- Review the budget\n* Send notes',
+              keywords: 'timeline, project, budget',
+            },
+          },
+        },
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => responseWithStringItems,
+      });
+
+      const result = await service.getTranscript('api-key', 'transcript-1');
+
+      expect(result.summary!.actionItems).toEqual([
+        'Follow up on timeline',
+        'Review the budget',
+        'Send notes',
+      ]);
+      expect(result.summary!.keywords).toEqual([
+        'timeline, project, budget',
+      ]);
+    });
   });
 });

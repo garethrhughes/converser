@@ -199,8 +199,8 @@ export class FirefliesService {
           end_time: number;
         }>;
         summary: {
-          keywords: string[];
-          action_items: string[];
+          keywords: string[] | string;
+          action_items: string[] | string;
           overview: string;
           short_summary: string;
         } | null;
@@ -231,8 +231,8 @@ export class FirefliesService {
 
     const summary: FirefliesSummary | null = transcript.summary
       ? {
-          keywords: transcript.summary.keywords,
-          actionItems: transcript.summary.action_items,
+          keywords: normaliseStringArray(transcript.summary.keywords),
+          actionItems: normaliseStringArray(transcript.summary.action_items),
           overview: transcript.summary.overview,
           shortSummary: transcript.summary.short_summary,
         }
@@ -274,4 +274,22 @@ export class FirefliesService {
       body: JSON.stringify({ query, variables }),
     });
   }
+}
+
+/**
+ * Fireflies API sometimes returns summary fields (action_items, keywords)
+ * as a single newline-delimited string instead of an array. This normalises
+ * both cases into a clean string array.
+ */
+function normaliseStringArray(value: string | string[]): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item) => item.trim().length > 0);
+  }
+  if (typeof value === 'string') {
+    return value
+      .split('\n')
+      .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+      .filter((line) => line.length > 0);
+  }
+  return [];
 }
