@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Trash2 } from 'lucide-react';
+import { Trash2, ShieldAlert } from 'lucide-react';
 import { api } from '@/lib/api';
 import { GoogleDrivePicker } from '@/components/google-drive-picker';
 import { FirefliesMeetingPicker } from '@/components/fireflies-meeting-picker';
-import type { Conversation, Person, FirefliesStatus } from '@/types';
+import type { Conversation, Person, FirefliesStatus, ImportResponse, RedactionSummary } from '@/types';
 
 export default function ConversationsPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -18,6 +18,7 @@ export default function ConversationsPage() {
   const [showPicker, setShowPicker] = useState(false);
   const [showFirefliesPicker, setShowFirefliesPicker] = useState(false);
   const [firefliesStatus, setFirefliesStatus] = useState<FirefliesStatus | null>(null);
+  const [redactionNotice, setRedactionNotice] = useState<RedactionSummary | null>(null);
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -60,13 +61,17 @@ export default function ConversationsPage() {
     setShowPicker(false);
     setImporting(true);
     setError(null);
+    setRedactionNotice(null);
 
     try {
       const body: { documentId: string; personId?: string } = { documentId };
       if (selectedPersonId) {
         body.personId = selectedPersonId;
       }
-      await api.post('/conversations/import', body);
+      const response = await api.post<ImportResponse>('/conversations/import', body);
+      if (response.piiDetected && response.redactionSummary) {
+        setRedactionNotice(response.redactionSummary);
+      }
       await fetchConversations();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to import conversation');
@@ -79,13 +84,17 @@ export default function ConversationsPage() {
     setShowFirefliesPicker(false);
     setImporting(true);
     setError(null);
+    setRedactionNotice(null);
 
     try {
       const body: { transcriptId: string; personId?: string } = { transcriptId };
       if (selectedPersonId) {
         body.personId = selectedPersonId;
       }
-      await api.post('/integrations/fireflies/import', body);
+      const response = await api.post<ImportResponse>('/integrations/fireflies/import', body);
+      if (response.piiDetected && response.redactionSummary) {
+        setRedactionNotice(response.redactionSummary);
+      }
       await fetchConversations();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to import from Fireflies');
@@ -107,6 +116,28 @@ export default function ConversationsPage() {
     }
   }
 
+  function formatRedactionSummary(summary: RedactionSummary): string {
+    const labels: Record<string, string> = {
+      email: 'email address',
+      phone: 'phone number',
+      'credit-card': 'credit card number',
+      ssn: 'SSN',
+      'national-id': 'national ID number',
+      'date-of-birth': 'date of birth',
+      address: 'physical address',
+    };
+
+    const parts: string[] = [];
+    for (const [category, count] of Object.entries(summary.categories)) {
+      if (count > 0) {
+        const label = labels[category] || category;
+        parts.push(`${count} ${label}${count > 1 ? 's' : ''}`);
+      }
+    }
+
+    return parts.join(', ') || `${summary.totalRedactions} item(s)`;
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -124,6 +155,18 @@ export default function ConversationsPage() {
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
           {error}
+        </div>
+      )}
+
+      {redactionNotice && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-md text-amber-800 flex items-start gap-2">
+          <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium">PII detected and redacted</p>
+            <p className="text-sm mt-1">
+              {formatRedactionSummary(redactionNotice)} removed from this conversation before storage.
+            </p>
+          </div>
         </div>
       )}
 

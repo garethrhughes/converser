@@ -11,10 +11,21 @@ import { User } from '../database/entities/user.entity';
 import { Conversation } from '../database/entities/conversation.entity';
 import { ConversationSection } from '../database/entities/conversation-section.entity';
 import { FirefliesService } from './fireflies/fireflies.service';
+import { PiiRedactionService } from '../pii/pii-redaction.service';
 import { convertTranscriptToMarkdown } from './fireflies/fireflies-markdown.converter';
 import { encrypt, decrypt } from '../common/crypto.util';
 import type { ImportFirefliesDto } from './dto/import-fireflies.dto';
 import type { ListMeetingsOptions, FirefliesMeeting } from './fireflies/fireflies.types';
+import type { PiiCategory } from '../pii/pii.types';
+
+export interface ImportResult {
+  conversation: Conversation;
+  piiDetected: boolean;
+  redactionSummary?: {
+    totalRedactions: number;
+    categories: Record<PiiCategory, number>;
+  };
+}
 
 @Injectable()
 export class IntegrationsService {
@@ -28,6 +39,7 @@ export class IntegrationsService {
     @InjectRepository(ConversationSection)
     private readonly sectionRepository: Repository<ConversationSection>,
     private readonly firefliesService: FirefliesService,
+    private readonly piiRedactionService: PiiRedactionService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -74,7 +86,7 @@ export class IntegrationsService {
   async importFromFireflies(
     userId: string,
     dto: ImportFirefliesDto,
-  ): Promise<Conversation> {
+  ): Promise<ImportResult> {
     const apiKey = await this.getDecryptedApiKey(userId);
 
     // Check for duplicate import
@@ -93,7 +105,11 @@ export class IntegrationsService {
         transcriptId: dto.transcriptId,
         conversationId: existing.id,
       });
-      return this.findConversationWithSections(userId, existing.id);
+      const conversation = await this.findConversationWithSections(
+        userId,
+        existing.id,
+      );
+      return { conversation, piiDetected: false };
     }
 
     const transcript = await this.firefliesService.getTranscript(
@@ -103,6 +119,50 @@ export class IntegrationsService {
 
     const { transcript: markdownContent, summary: summaryContent } =
       convertTranscriptToMarkdown(transcript);
+
+    // Run PII redaction on content
+    let totalRedactions = 0;
+    const aggregatedCategories: Record<PiiCategory, number> = {
+      email: 0,
+      phone: 0,
+      'credit-card': 0,
+      ssn: 0,
+      'national-id': 0,
+      'date-of-birth': 0,
+      address: 0,
+    };
+
+    const transcriptRedaction = this.piiRedactionService.redact(markdownContent);
+    if (transcriptRedaction.redacted) {
+      totalRedactions += transcriptRedaction.redactions.length;
+      for (const [cat, count] of Object.entries(transcriptRedaction.summary)) {
+        aggregatedCategories[cat as PiiCategory] += count;
+      }
+    }
+
+    let redactedSummary: string | null = null;
+    if (summaryContent) {
+      const summaryRedaction = this.piiRedactionService.redact(summaryContent);
+      redactedSummary = summaryRedaction.content;
+      if (summaryRedaction.redacted) {
+        totalRedactions += summaryRedaction.redactions.length;
+        for (const [cat, count] of Object.entries(summaryRedaction.summary)) {
+          aggregatedCategories[cat as PiiCategory] += count;
+        }
+      }
+    }
+
+    const piiDetected = totalRedactions > 0;
+
+    if (piiDetected) {
+      this.logger.log({
+        msg: 'PII detected and redacted during Fireflies import',
+        userId,
+        transcriptId: dto.transcriptId,
+        totalRedactions,
+        categories: aggregatedCategories,
+      });
+    }
 
     const conversation = this.conversationRepository.create({
       userId,
@@ -121,17 +181,17 @@ export class IntegrationsService {
       this.sectionRepository.create({
         conversationId: savedConversation.id,
         title: 'Transcript',
-        content: markdownContent,
+        content: transcriptRedaction.content,
         order: 0,
       }),
     ];
 
-    if (summaryContent) {
+    if (redactedSummary) {
       sections.push(
         this.sectionRepository.create({
           conversationId: savedConversation.id,
           title: 'Summary',
-          content: summaryContent,
+          content: redactedSummary,
           order: 1,
         }),
       );
@@ -147,7 +207,21 @@ export class IntegrationsService {
       sectionCount: sections.length,
     });
 
-    return this.findConversationWithSections(userId, savedConversation.id);
+    const fullConversation = await this.findConversationWithSections(
+      userId,
+      savedConversation.id,
+    );
+
+    return {
+      conversation: fullConversation,
+      piiDetected,
+      ...(piiDetected && {
+        redactionSummary: {
+          totalRedactions,
+          categories: aggregatedCategories,
+        },
+      }),
+    };
   }
 
   private async findConversationWithSections(

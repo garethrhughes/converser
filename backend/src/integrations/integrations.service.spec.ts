@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { IntegrationsService } from './integrations.service';
 import { FirefliesService } from './fireflies/fireflies.service';
+import { PiiRedactionService } from '../pii/pii-redaction.service';
 import { User } from '../database/entities/user.entity';
 import { Conversation } from '../database/entities/conversation.entity';
 import { ConversationSection } from '../database/entities/conversation-section.entity';
@@ -69,6 +70,25 @@ describe('IntegrationsService', () => {
         {
           provide: getRepositoryToken(ConversationSection),
           useValue: sectionRepository,
+        },
+        {
+          provide: PiiRedactionService,
+          useValue: {
+            redact: jest.fn().mockImplementation((text: string) => ({
+              content: text,
+              redacted: false,
+              redactions: [],
+              summary: {
+                email: 0,
+                phone: 0,
+                'credit-card': 0,
+                ssn: 0,
+                'national-id': 0,
+                'date-of-birth': 0,
+                address: 0,
+              },
+            })),
+          },
         },
         {
           provide: ConfigService,
@@ -254,8 +274,8 @@ describe('IntegrationsService', () => {
         transcriptId: 'transcript-1',
       });
 
-      expect(result.sourceType).toBe('fireflies');
-      expect(result.sourceId).toBe('transcript-1');
+      expect(result.conversation.sourceType).toBe('fireflies');
+      expect(result.conversation.sourceId).toBe('transcript-1');
       expect(conversationRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           userId: 'user-1',
@@ -286,7 +306,8 @@ describe('IntegrationsService', () => {
         transcriptId: 'transcript-1',
       });
 
-      expect(result).toEqual(existingConversation);
+      expect(result.conversation).toEqual(existingConversation);
+      expect(result.piiDetected).toBe(false);
       expect(firefliesService.getTranscript).not.toHaveBeenCalled();
     });
 
