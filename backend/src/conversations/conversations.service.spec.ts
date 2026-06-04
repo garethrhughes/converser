@@ -7,6 +7,7 @@ import { Conversation } from '../database/entities/conversation.entity';
 import { ConversationSection } from '../database/entities/conversation-section.entity';
 import { User } from '../database/entities/user.entity';
 import { GoogleDriveService } from '../google-drive/google-drive.service';
+import { PiiRedactionService } from '../pii/pii-redaction.service';
 
 jest.mock('../common/google-token.helper', () => ({
   getValidGoogleAccessToken: jest.fn().mockResolvedValue('mock-access-token'),
@@ -98,6 +99,25 @@ describe('ConversationsService', () => {
         {
           provide: GoogleDriveService,
           useValue: googleDriveService,
+        },
+        {
+          provide: PiiRedactionService,
+          useValue: {
+            redact: jest.fn().mockImplementation((text: string) => ({
+              content: text,
+              redacted: false,
+              redactions: [],
+              summary: {
+                email: 0,
+                phone: 0,
+                'credit-card': 0,
+                ssn: 0,
+                'national-id': 0,
+                'date-of-birth': 0,
+                address: 0,
+              },
+            })),
+          },
         },
         {
           provide: ConfigService,
@@ -232,8 +252,8 @@ describe('ConversationsService', () => {
           sourceId: 'doc-456',
         }),
       );
-      expect(result.sections).toHaveLength(1);
-      expect(result.sections[0].title).toBe('Main');
+      expect(result.conversation.sections).toHaveLength(1);
+      expect(result.conversation.sections[0].title).toBe('Main');
     });
 
     it('throws NotFoundException when user is not found', async () => {

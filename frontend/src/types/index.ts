@@ -95,3 +95,14 @@ export interface FirefliesMeeting {
 export interface FirefliesStatus {
   connected: boolean;
 }
+
+export interface RedactionSummary {
+  totalRedactions: number;
+  categories: Record<string, number>;
+}
+
+export interface ImportResponse {
+  conversation: Conversation;
+  piiDetected: boolean;
+  redactionSummary?: RedactionSummary;
+}

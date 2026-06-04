@@ -7,12 +7,14 @@ import { ConversationsController } from './conversations.controller';
 import { ConversationsService } from './conversations.service';
 import { GoogleDriveModule } from '../google-drive/google-drive.module';
 import { PeopleModule } from '../people/people.module';
+import { PiiModule } from '../pii/pii.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Conversation, ConversationSection, User]),
     GoogleDriveModule,
     PeopleModule,
+    PiiModule,
   ],
   controllers: [ConversationsController],
   providers: [ConversationsService],

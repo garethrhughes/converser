@@ -6,11 +6,13 @@ import { ConversationSection } from '../database/entities/conversation-section.e
 import { IntegrationsController } from './integrations.controller';
 import { IntegrationsService } from './integrations.service';
 import { FirefliesModule } from './fireflies/fireflies.module';
+import { PiiModule } from '../pii/pii.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Conversation, ConversationSection]),
     FirefliesModule,
+    PiiModule,
   ],
   controllers: [IntegrationsController],
   providers: [IntegrationsService],
