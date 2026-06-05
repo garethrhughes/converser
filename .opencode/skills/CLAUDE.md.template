@@ -1,0 +1,150 @@
+# CLAUDE.md — [Project Name]
+
+## Active Skillset: [typescript | dotnet | …]
+
+This project follows the language-agnostic core rules in
+[`.opencode/skills/RULES.md`](.opencode/skills/RULES.md) plus the matching stack
+overlay in
+[`.opencode/skills/rules/[profile].md`](.opencode/skills/rules/[profile].md)
+(replace `[profile]` with the active skillset above — e.g. `typescript.md` or
+`dotnet.md`).
+Skills (`developer`, `reviewer`, `architect`, `infosec`) read both when applying
+conventions to this project.
+
+---
+
+## Project Overview
+
+[Short description: what does this system do, who uses it, what problem does it solve?]
+
+---
+
+## Tech Stack
+
+### Backend
+| Concern | Choice |
+|---|---|
+| Framework | [fill in] |
+| Language | [fill in] |
+| ORM / Data layer | [fill in] |
+| Auth | [fill in] |
+| API Docs | [fill in] |
+| Testing | [fill in] |
+| Migrations | [fill in] |
+| Validation | [fill in — e.g. class-validator, Zod] |
+| Logging | [fill in — e.g. pino, Winston] |
+
+### Frontend
+| Concern | Choice |
+|---|---|
+| Framework | [fill in] |
+| Language | [fill in] |
+| Styling | [fill in] |
+| State | [fill in] |
+| Testing | [fill in] |
+| HTTP | [fill in] |
+| Data fetching | [fill in — e.g. Server Components, React Query] |
+
+### Infrastructure
+| Concern | Choice |
+|---|---|
+| Cloud provider(s) | [fill in] |
+| IaC tool | [fill in — e.g. Terraform, OpenTofu, Pulumi, AWS CDK] |
+| IaC state backend | [fill in — e.g. S3 + DynamoDB lock, Terraform Cloud, GCS] |
+| Secrets manager | [fill in — e.g. AWS Secrets Manager, GCP Secret Manager, Vault] |
+| CI/CD | [fill in — e.g. GitHub Actions, GitLab CI] |
+| Database | [fill in] |
+| Task Automation | [fill in] |
+| Config | [fill in] |
+| Observability | [fill in — logs, metrics, traces backend] |
+
+### Security & Compliance
+| Concern | Choice |
+|---|---|
+| Compliance frameworks | [fill in — e.g. ISO27001, SOC2, none] |
+| Encryption at rest | [fill in — provider-managed / customer-managed / client-side] |
+| Encryption in transit | [fill in — TLS version minimum] |
+| Data classification scheme | [fill in — e.g. public / internal / confidential / PII] |
+| Vulnerability scanning | [fill in — e.g. Dependabot, Snyk, Trivy] |
+
+---
+
+## Repository Structure
+
+> Fill in your actual directory and file structure.
+
+```
+/
+├── [backend app directory]/
+│   └── src/
+│       └── [describe your module structure here]
+├── [frontend app directory]/
+│   └── [describe your component/page structure here]
+├── infra/
+│   ├── modules/         # Reusable IaC modules
+│   ├── envs/            # Per-environment root configs (dev, staging, prod)
+│   └── README.md        # Runbook: how to plan/apply, where state lives
+├── docs/
+│   ├── proposals/
+│   └── decisions/
+└── .env.example
+```
+
+---
+
+## Engineering Rules
+
+The project-wide engineering conventions live in two layers:
+
+1. **Core (language-agnostic):**
+   [`.opencode/skills/RULES.md`](.opencode/skills/RULES.md) — configuration & secrets,
+   external HTTP clients, observability principles, infrastructure as code, testing,
+   git & PRs.
+2. **Stack overlay** (matches the active skillset above):
+   [`.opencode/skills/rules/[profile].md`](.opencode/skills/rules/[profile].md) —
+   language conventions, framework rules, ORM, logger, test runner. Replace
+   `[profile]` with the active skillset above (e.g. `typescript.md`, `dotnet.md`).
+
+Both are referenced by every skill and form the single source of truth.
+
+### Project-specific overrides
+
+If this project deviates from any rule in the core or overlay, list the override here
+with a brief justification. Otherwise leave the table empty.
+
+| Source | Section | Override | Justification |
+|---|---|---|---|
+| *(none)* | — | — | — |
+
+### Project-specific additions
+
+If this project enforces rules **on top of** the core + overlay (e.g. domain-specific
+naming, extra IaC tags, project-specific log fields), list them here.
+
+- *(none)*
+
+---
+
+## Design & Proposal Workflow
+
+Write a proposal in `docs/proposals/NNNN-short-kebab-case-title.md` before implementing any:
+- New module, service, or significant component
+- Module boundary or data flow change
+- New external API integration point
+- Schema change affecting more than one entity
+- Cross-cutting concern (caching, error handling strategy, etc.)
+- New cloud resource type, network topology change, or new IAM role/policy with write/admin scope
+- New secret, change to backup/retention, or change to the deployment pipeline
+
+When a proposal is accepted, create the corresponding ADR in `docs/decisions/NNNN-title.md`
+and update the proposal status to `Accepted`.
+
+See the `architect` and `decision-log` skills for the exact proposal and ADR formats.
+
+---
+
+## Settled Decisions (do not revisit without a superseding ADR)
+
+| # | Decision |
+|---|---|
+| — | *(add ADR entries here as decisions are made)* |
